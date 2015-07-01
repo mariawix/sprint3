@@ -1,0 +1,135 @@
+/**************************************************************************************************
+ * Base Rules
+ **************************************************************************************************/
+body  {
+    font-size: 62.5%;
+    font-family: "Bell MT", "Georgia", serif;
+}
+
+div, tbody, thead, table, tr, td, th, input, button {
+    padding: 0.2rem 1rem;
+    margin: 0.02rem 0.4rem;     /* top-bottom right-left */
+    font-size: 0.8rem;
+}
+input {
+    text-align: center;
+    font-size: inherit;
+    font: inherit;
+    border: 0.05rem solid #ddd;
+    color: #337ab7;
+}
+
+.visuallyhidden {
+    position: absolute;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    height: 1px; width: 1px;
+    margin: -1px; padding: 0; border: 0;
+    text-align: left;
+}
+
+
+
+/**************************************************************************************************
+ * Layout Rules
+ **************************************************************************************************/
+.page {
+    width: 90%;
+    margin: 2rem auto;
+    text-align: center;
+}
+.items-viewer {
+    text-align: center;
+    display: inline-block;
+}
+
+
+/**************************************************************************************************
+ * Module Rules
+ **************************************************************************************************/
+/* Items Table */
+.items-table {
+    margin: 0 auto;
+}
+.items-table thead {
+    background: #CAE3FA;
+}
+.items-table tr:nth-child(2n + 2) {
+    background: #f5f5f5;
+}
+
+.items-cart {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    width: 50%;
+    text-align: center;
+}
+
+.items-cart-bill {
+    border: 1px solid #ddd;
+}
+
+/* Cart Buttons */
+.item-amount .add,
+.item-amount .remove {
+    padding: 0.1rem 0 0.1rem 0.3rem;
+    color: #337ab7;
+    text-decoration: none;
+    background-color: inherit;
+    margin-right: 0.5rem;
+}
+.item-amount .amount {
+    width: 2rem;
+    padding-left: 0;
+    padding-right: 0;
+    background: #CAE3FA;
+    color: #fff;
+    border: none;
+    margin-right: 1rem;
+    margin-left: 0.5rem;
+}
+    /* Pagination Block */
+.pagination {
+    display: inline-block;
+    padding: 0;
+    margin: 2rem 0;
+    box-sizing: border-box;
+    font-size: 0;
+}
+.pagination-btn {
+    display: inline;
+}
+.current-page-btn {
+    font-weight: bold;
+}
+
+
+.pagination .pagination-link {
+    position: relative;
+    float: left;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.42857143;
+    color: #337ab7;
+    text-decoration: none;
+    background-color: #fff;
+    border: 0.05rem solid #ddd;
+    margin-left: -1px;
+}
+.pagination-item {
+    list-style-type: none;
+    margin: 0 auto;
+    padding: 0.5rem 0;
+    display: inline-block;
+}
+.pagination-item.current-page {
+    font-weight: bold;
+}
+
+/* Items Per Page Input */
+.pages-nmb-input {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.25rem;
+}
+

@@ -4,23 +4,37 @@
     <title>Dynamic Table</title>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-    <table class="dynamic-table">
-        <thead>
-            <tr>
-                <th data-field="id" data-sortable="true">Item ID</th>
-                <th data-field="name" data-sortable="true">Item Name</th>
-                <th data-field="price" data-sortable="true">Item Price</th>
-            </tr>
-        </thead>
-    </table>
-    <div class="info-msg">
+<div class="page">
+    <header class="page-header">
+        <h1>Sprint 3</h1>
+    </header>
+    <main class="page-content">
+        <article class="items-viewer">
+            <table class="items-table"></table>
+            <footer class="items-nav-bar">
+                <div class="items-cart">
+                    <label for="items-cart-bill-id">
+                        Total Bill:
+                        <input id="items-cart-bill-id" type="number" class="items-cart-bill" value="0" disabled>
+                    </label>
+                </div>
+                <div class="pages-nmb">
+                    <input type="range" class="pages-nmb-input" value="10" min="5" max="50">
+                </div>
+                <nav>
+                    <ul class="pagination">
+                    </ul>
+                </nav>
+            </footer>
+        </article>
+    </main>
+</div>
 
-    </div>
-
-    <script src="items.js"></script>
-    <script src="items-script.js"></script>
+<script src="js/items.js"></script>
+<script src="js/pubsub.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
