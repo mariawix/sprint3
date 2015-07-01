@@ -234,7 +234,9 @@
         }
         paginationEl.appendChild(fragment);
     }
-
+    document.querySelector('.pages-nmb-input').onchange = function() {
+        console.log(this.value);
+    }
     loadHeaders();
     createItemElements();
     loadItems(0, parseInt(itemsNmbEl.value));

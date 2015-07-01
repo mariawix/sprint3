@@ -17,8 +17,8 @@ input {
     font: inherit;
     border: 0.05rem solid #ddd;
     color: #337ab7;
+    border-radius: 0.5rem;
 }
-
 .visuallyhidden {
     position: absolute;
     overflow: hidden;
@@ -27,8 +27,6 @@ input {
     margin: -1px; padding: 0; border: 0;
     text-align: left;
 }
-
-
 
 /**************************************************************************************************
  * Layout Rules
@@ -42,7 +40,6 @@ input {
     text-align: center;
     display: inline-block;
 }
-
 
 /**************************************************************************************************
  * Module Rules
@@ -58,6 +55,7 @@ input {
     background: #f5f5f5;
 }
 
+/* Bill */
 .items-cart {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
@@ -65,9 +63,8 @@ input {
     width: 50%;
     text-align: center;
 }
-
 .items-cart-bill {
-    border: 1px solid #ddd;
+    border: 0.05rem solid #ddd;
 }
 
 /* Cart Buttons */
@@ -89,7 +86,8 @@ input {
     margin-right: 1rem;
     margin-left: 0.5rem;
 }
-    /* Pagination Block */
+
+/* Pagination Block */
 .pagination {
     display: inline-block;
     padding: 0;
@@ -103,8 +101,6 @@ input {
 .current-page-btn {
     font-weight: bold;
 }
-
-
 .pagination .pagination-link {
     position: relative;
     float: left;
@@ -129,7 +125,11 @@ input {
 
 /* Items Per Page Input */
 .pages-nmb-input {
+    display: block;
+    margin: 0 auto;
     font-size: 0.7rem;
     padding: 0.15rem 0.25rem;
+    width: 2rem;
 }
+
 
