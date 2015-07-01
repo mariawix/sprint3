@@ -189,18 +189,21 @@
     /**
      * Creates page button click callback, subscribes it to event bus.
      * @param element button element
-     * @param name event name
      */
-    function pageBtnHandler(element, name) {
-        var id = eventBus.subscribe(name, function (e) {
+    function pageBtnHandler(element) {
+        var id = 0,
+            eventName = 'myevent';
+        id = eventBus.subscribe(eventName, function (e) {
             var data = JSON.parse(e.dataset.paging);
             document.querySelector('.current-page-btn').className = 'pagination-btn';
             loadItems(data.start, data.end);
             e.className = e.className + ' current-page-btn';
         });
-        element[name] = function () {
-            console.log(name + ' ' + id);
-            eventBus.publish(name, id, this);
+        element.addEventListener(eventName, function (e) {
+            eventBus.publish(eventName, id, this);
+        }, false);
+        element.onclick = function () {
+            element.dispatchEvent(new Event(eventName));
         }
     }
 
@@ -227,7 +230,7 @@
                 }
             );
             appendChild(paginationBtn, 'a', {'className': 'pagination-link', 'href': '#', 'innerHTML': pageNmb});
-            pageBtnHandler(paginationBtn, 'onclick');
+            pageBtnHandler(paginationBtn);
         }
         paginationEl.appendChild(fragment);
     }
