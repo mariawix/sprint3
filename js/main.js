@@ -82,7 +82,7 @@
             loadPaginationBar(1);
         });
         sortAscBtn[eventName] = function() {
-            eventBus.publish(eventName, id, key);
+            eventBus.publish(eventName, iis, key);
         }
         return sortAscBtn;
     }
@@ -249,7 +249,7 @@
             eventBus.publish(eventName, id, this);
         }, false);
         element.onclick = function () {
-            element.dispatchEvent(new Event(eventName));
+            element.dispatchEvent(new CustomEvent(eventName, { 'detail': 'data' }));
         }
     }
 
