@@ -82,7 +82,7 @@
             loadPaginationBar(1);
         });
         sortAscBtn[eventName] = function() {
-            eventBus.publish(eventName, iis, key);
+            eventBus.publish(eventName, id, key);
         }
         return sortAscBtn;
     }
