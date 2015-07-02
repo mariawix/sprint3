@@ -7,7 +7,7 @@
     var itemsTable = document.querySelector('.items-table'),                // items table
         itemsNmbEl = document.querySelector('.displayed-items-nmb-input'),  // DOM element holding number of items per page
         paginationEl = document.querySelector('.pages-nav'),                // pagination bar
-        tbody = undefined,          // body of the items table
+        tbody = document.createElement('tbody');                            // body of the items table
         itemElements = [],          // items elements
         theaders = [],              // headers of the items table
         eventBus = new PubSub();    // events manager
@@ -38,17 +38,40 @@
         return childElement;
     }
 
+    function sortAscBtn(key) {
+        var sortAscBtn = document.createElement('span'),
+            eventName = 'onclick',
+            id = 0;
+        sortAscBtn.innerHTML = '&uarr;';
+        id = eventBus.subscribe(eventName, function(key) {
+            itemElements.sort(function(item1, item2) {
+                var res = (item1[key] > item2[key]) ? 1 : ((item1[key] < item2[key]) ? -1 : 0);
+                return res;
+            });
+        });
+        sortAscBtn[eventName] = function() {
+            eventBus.publish(eventName, id, key);
+        }
+        return sortAscBtn;
+    }
+
+    function sortDescBtn(key) {
+
+    }
     /**
      * Creates head of the items table using properties of an ITEMS object.
      */
     function loadHeaders() {
         var thead = document.createElement('thead'),
             tr = document.createElement('tr'),
+            th = {},
             fragment = document.createDocumentFragment(),
             key = {};
         for (key in ITEMS[0]) {
             theaders.push(key);
-            appendChild(tr, 'th', {'innerHTML': key});
+            th = appendChild(tr, 'th', {'innerHTML': key});
+            //th.appendChild(sortAscBtn(key));
+            //th.appendChild(sortDescBtn(key));
         }
         appendChild(tr, 'th', {'innerHTML': 'cart'});
         thead.appendChild(tr);
@@ -151,12 +174,7 @@
         var fragment = document.createDocumentFragment(),
             i = 0;
         lastIndex = (lastIndex < ITEMS.length) ? lastIndex : ITEMS.length;
-        if (tbody) {
-            tbody.innerHTML = "";
-        }
-        else {
-            tbody = document.createElement('tbody');
-        }
+        tbody.innerHTML = "";
         for (i = firstIndex; i < lastIndex; i++) {
             tbody.appendChild(itemElements[i]);
         }
@@ -171,24 +189,23 @@
         var eventName = 'onchange',
             id = 0,
             firstItem = 0,
-            skippedPages = 0,
+            newCurPage = 0,
             topRow = 0;
-        id = eventBus.subscribe(eventName, function (pagesAmount) {
+        id = eventBus.subscribe(eventName, function (itemsAmount) {
             topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
-            skippedPages = Math.floor(topRow/pagesAmount);
-            firstItem = topRow - skippedPages * pagesAmount;
-            console.log('first index: ' + firstItem);
-            loadItems(firstItem, firstItem + pagesAmount);
-            loadPaginationBar(skippedPages + 1);
+            newCurPage = Math.floor(topRow/itemsAmount) + 1;
+            firstItem = (newCurPage - 1) * itemsAmount;
+            loadItems(firstItem, firstItem + itemsAmount);
+            loadPaginationBar(newCurPage);
         });
         itemsNmbEl[eventName] = function () {
-            eventBus.publish(eventName, id, this.value);
+            eventBus.publish(eventName, id, parseInt(this.value));
         }
     }
 
     /**
      * Creates page button click callback, subscribes it to event bus.
-     * @param element button element
+     * @param {DOMElement} element button element
      */
     function pageBtnHandler(element) {
         var id = 0,
@@ -234,13 +251,26 @@
         }
         paginationEl.appendChild(fragment);
     }
-    document.querySelector('.displayed-items-nmb-input').onchange = function() {
-        console.log(this.value);
+
+    /**
+     * Creates a listener for reset cart event and subscribes it to the event bus.
+     */
+    function handleResetCartButton() {
+        var resetBtn = document.querySelector('.reset-cart-btn'),
+            id = 0,
+            eventName = 'onclick';
+        id = eventBus.subscribe(eventName, function () {
+            document.querySelector('.amount').forEach(function(element) { element.querySelector('.amount').value = 0; });
+            itemElements.forEach(function(element) { element.querySelector('.amount').value = 0; });
+            document.querySelector('.total-bill').value = 0;
+        });
+        resetBtn.addEventListener(eventName, function () { eventBus.publish(eventName, id); });
     }
+
     loadHeaders();
     createItemElements();
     loadItems(0, parseInt(itemsNmbEl.value));
     createItemsAmountInputHandler();
     loadPaginationBar(1);
-
+    handleResetCartButton();
 })();
