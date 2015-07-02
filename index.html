@@ -12,23 +12,24 @@
         <h1>Sprint 3</h1>
     </header>
     <main class="page-content">
-        <article class="items-viewer">
+        <article class="cart-container">
+            <h2>Online Store</h2>
             <table class="items-table"></table>
-            <footer class="items-nav-bar">
-                <div class="items-cart">
-                    <label for="items-cart-bill-id">
-                        Total Bill:
-                        <input id="items-cart-bill-id" type="number" class="items-cart-bill" value="0" disabled>
+            <footer>
+                <div class="cart-summary">
+                    <label for="total-bill-id">
+                        Total:
+                        <input id="total-bill-id" type="number" class="total-bill" value="0" disabled />
                     </label>
                 </div>
-                <div class="pages-nmb">
-                    <label for="pages-nmb-input-id">
+                <div class="displayed-items-nmb">
+                    <label for="displayed-items-nmb-input-id">
                         Items Per Page:
-                        <input id="pages-nmb-input-id" type="number" value="10" class="pages-nmb-input" min="5" max="50">
+                        <input id="displayed-items-nmb-input-id" type="number" value="10" class="displayed-items-nmb-input" min="5" max="50" />
                     </label>
                 </div>
                 <nav>
-                    <ul class="pagination">
+                    <ul class="pages-nav">
                     </ul>
                 </nav>
             </footer>

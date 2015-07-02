@@ -4,9 +4,9 @@
 
 
 (function () {
-    var itemsTable = document.querySelector('.items-table'),     // items table
-        itemsNmbEl = document.querySelector('.pages-nmb-input'), // DOM element holding number of items per page
-        paginationEl = document.querySelector('.pagination'),    // pagination bar
+    var itemsTable = document.querySelector('.items-table'),                // items table
+        itemsNmbEl = document.querySelector('.displayed-items-nmb-input'),  // DOM element holding number of items per page
+        paginationEl = document.querySelector('.pages-nav'),                // pagination bar
         tbody = undefined,          // body of the items table
         itemElements = [],          // items elements
         theaders = [],              // headers of the items table
@@ -108,7 +108,7 @@
      * @returns the row
      */
     function createAddRemoveBtns(tr) {
-        var cart = document.querySelector('.items-cart-bill'),
+        var cart = document.querySelector('.total-bill'),
             element = {},
             pagesAmountEl = {},
             cartBtn = {},
@@ -195,7 +195,7 @@
             eventName = 'myevent';
         id = eventBus.subscribe(eventName, function (e) {
             var data = JSON.parse(e.dataset.paging);
-            document.querySelector('.current-page-btn').className = 'pagination-btn';
+            document.querySelector('.current-page-btn').className = 'pages-nav-btn';
             loadItems(data.start, data.end);
             e.className = e.className + ' current-page-btn';
         });
@@ -220,7 +220,7 @@
         paginationEl.innerHTML = "";
 
         for (pageNmb = 1; (pageNmb - 1) * displayedItemsNmb < ITEMS.length; pageNmb++) {
-            className = (pageNmb === curPage) ? 'pagination-btn current-page-btn' : 'pagination-btn';
+            className = (pageNmb === curPage) ? 'pages-nav-btn current-page-btn' : 'pages-nav-btn';
             paginationBtn = appendChild(fragment, 'li',
                 {
                     'className': className,
@@ -229,12 +229,12 @@
                     }
                 }
             );
-            appendChild(paginationBtn, 'a', {'className': 'pagination-link', 'href': '#', 'innerHTML': pageNmb});
+            appendChild(paginationBtn, 'a', {'className': 'pages-nav-link', 'href': '#', 'innerHTML': pageNmb});
             pageBtnHandler(paginationBtn);
         }
         paginationEl.appendChild(fragment);
     }
-    document.querySelector('.pages-nmb-input').onchange = function() {
+    document.querySelector('.displayed-items-nmb-input').onchange = function() {
         console.log(this.value);
     }
     loadHeaders();

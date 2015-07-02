@@ -36,7 +36,7 @@ input {
     margin: 2rem auto;
     text-align: center;
 }
-.items-viewer {
+.cart-container {
     text-align: center;
     display: inline-block;
 }
@@ -56,14 +56,14 @@ input {
 }
 
 /* Bill */
-.items-cart {
+.cart-summary {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
     display: inline-block;
     width: 50%;
     text-align: center;
 }
-.items-cart-bill {
+.total-bill {
     border: 0.05rem solid #ddd;
 }
 
@@ -87,21 +87,21 @@ input {
     margin-left: 0.5rem;
 }
 
-/* Pagination Block */
-.pagination {
+/* Pages Navigator */
+.pages-nav {
     display: inline-block;
     padding: 0;
     margin: 2rem 0;
     box-sizing: border-box;
     font-size: 0;
 }
-.pagination-btn {
+.pages-nav-btn {
     display: inline;
 }
 .current-page-btn {
     font-weight: bold;
 }
-.pagination .pagination-link {
+.pages-nav .pages-nav-link {
     position: relative;
     float: left;
     padding: 0.2rem 0.5rem;
@@ -113,18 +113,18 @@ input {
     border: 0.05rem solid #ddd;
     margin-left: -1px;
 }
-.pagination-item {
+.pages-nav-item {
     list-style-type: none;
     margin: 0 auto;
     padding: 0.5rem 0;
     display: inline-block;
 }
-.pagination-item.current-page {
+.pages-nav-item.current-page {
     font-weight: bold;
 }
 
 /* Items Per Page Input */
-.pages-nmb-input {
+.displayed-items-nmb-input {
     display: block;
     margin: 0 auto;
     font-size: 0.7rem;
