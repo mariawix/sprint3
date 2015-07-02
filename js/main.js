@@ -38,16 +38,48 @@
         return childElement;
     }
 
-    function sortAscBtn(key) {
+    /**
+     * Reindexes item DOM elements
+     * @returns {Array} reindexed elements
+     */
+    function reindexItemsElements() {
+        var i = 0;
+        for (i = 0; i < itemElements.length; i++) {
+            itemElements[i].dataset.index = i;
+        }
+        return itemElements;
+    }
+
+    /**
+     * Creates sort button and its click handler
+     * @param key sorting property
+     * @param asc if true then uses ascending order, otherwise - descending
+     * @returns {Element} created button
+     */
+    function sortBtn(key, asc) {
         var sortAscBtn = document.createElement('span'),
             eventName = 'onclick',
             id = 0;
-        sortAscBtn.innerHTML = '&uarr;';
-        id = eventBus.subscribe(eventName, function(key) {
+        sortAscBtn.innerHTML = (asc) ? '&uarr;' : '&darr;';
+        sortAscBtn.className = (asc) ? 'sort-asc-btn' : 'sort-desc-btn';
+        id = eventBus.subscribe(eventName, function() {
+            var firstItem = 0;
             itemElements.sort(function(item1, item2) {
-                var res = (item1[key] > item2[key]) ? 1 : ((item1[key] < item2[key]) ? -1 : 0);
-                return res;
+                var el1val, el2val, res;
+                el1val = item1.querySelector('.' + key).innerHTML;
+                el2val = item2.querySelector('.' + key).innerHTML;
+                el1val = (key === 'name') ? el1val : parseInt(el1val);
+                el2val = (key === 'name') ? el2val : parseInt(el2val);
+                if (asc) {
+                    return (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
+                }
+                else {
+                    return (el1val > el2val) ? -1 : ((el1val < el2val) ? 1 : 0);
+                }
             });
+            reindexItemsElements();
+            loadItems(0, parseInt(itemsNmbEl.value));
+            loadPaginationBar(1);
         });
         sortAscBtn[eventName] = function() {
             eventBus.publish(eventName, id, key);
@@ -55,9 +87,6 @@
         return sortAscBtn;
     }
 
-    function sortDescBtn(key) {
-
-    }
     /**
      * Creates head of the items table using properties of an ITEMS object.
      */
@@ -70,8 +99,8 @@
         for (key in ITEMS[0]) {
             theaders.push(key);
             th = appendChild(tr, 'th', {'innerHTML': key});
-            //th.appendChild(sortAscBtn(key));
-            //th.appendChild(sortDescBtn(key));
+            th.appendChild(sortBtn(key, true));
+            th.appendChild(sortBtn(key, false));
         }
         appendChild(tr, 'th', {'innerHTML': 'cart'});
         thead.appendChild(tr);

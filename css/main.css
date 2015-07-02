@@ -51,7 +51,13 @@ input, button {
 .items-table tr:nth-child(2n + 2) {
     background: #f5f5f5;
 }
-
+.sort-asc-btn,
+.sort-desc-btn {
+    display: inline-block;
+    width: 0.5rem;
+    height: 1rem;
+    cursor: pointer;
+}
 /* Cart Summary */
 .cart-summary {
     margin-top: 1rem;
