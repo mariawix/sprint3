@@ -2,6 +2,21 @@
  * Created by mariao on 6/29/15.
  */
 
+/*
+ * Class names of dynamically created elements
+ */
+var CLASS_NAMES = {
+    itemAmountController: 'item-amount', // Element containing add/remove buttons and item amount element
+    itemAmount: 'amount',                // Element displaying amount of item added to the cart
+    addItemBtn: 'add',                   // Button enabling adding items to the cart
+    removeItemBtn: 'remove',             // Button enabling removing items from the cart
+    sortAsc: 'sort-asc-btn',             // Button enabling sorting items in ascending order
+    sortDesc: 'sort-desc-btn',           // Button enabling sorting items in descending order
+    itemPrice: 'price',                  // Element containing item price value
+    pageBtn: 'page-btn',                 // Pagination bar button
+    curPageBtn: 'current-page-btn',      // Current page button
+    pageLink: 'page-link'                // Page link
+};
 
 (function () {
     "use strict";
@@ -9,21 +24,21 @@
         itemsNmbEl = document.querySelector('.displayed-items-nmb-input'),  // DOM element holding number of items per page
         totalBillEl = document.querySelector('.total-bill'),                // DOM element holding total bill
         paginationEl = document.querySelector('.pages-nav'),                // pagination bar
+        resetCartBtn = document.querySelector('.reset-cart-btn'),           // DOM element enabling resetting cart
         tbody = document.createElement('tbody'),                            // body of the items table
-        itemElements = [],          // items elements
+        itemEls = [],               // item elements
         theaders = [],              // headers of the items table
         eventBus = new PubSub();    // events manager
 
     /**
      * Creates a new DOM element and appends it to the specified parent element.
-     * Returns the newly created element.
      * @param {Element} parentElement parent element of the newly created element
      * @param {String} childName tag name of the child element
      * @param {Object} childAtts attributes of the child element in the form {name: value, name: value ...}
      * @returns {Element} the newly created element
      */
     function appendChild(parentElement, childName, childAtts) {
-        var key = '',
+        var key,
             datasetKey = '',
             childElement = document.createElement(childName);
         for (key in childAtts) {
@@ -45,11 +60,11 @@
      * @returns {Array} reindexed elements
      */
     function reindexItemsElements() {
-        var i = 0;
-        for (i = 0; i < itemElements.length; i++) {
-            itemElements[i].dataset.index = i;
+        var i;
+        for (i = 0; i < itemEls.length; i++) {
+            itemEls[i].dataset.index = i;
         }
-        return itemElements;
+        return itemEls;
     }
 
     /**
@@ -63,13 +78,12 @@
             eventName = 'onclick',
             id = 0;
         sortAscBtn.innerHTML = (asc) ? '&uarr;' : '&darr;';
-        sortAscBtn.className = (asc) ? 'sort-asc-btn' : 'sort-desc-btn';
+        sortAscBtn.className = (asc) ? CLASS_NAMES.sortAsc : CLASS_NAMES.sortDesc;
         id = eventBus.subscribe(eventName, function() {
-            var firstItem = 0;
-            itemElements.sort(function(item1, item2) {
+            itemEls.sort(function(item1, item2) {
                 var el1val, el2val, res;
-                el1val = item1.querySelector('.' + key).innerHTML;
-                el2val = item2.querySelector('.' + key).innerHTML;
+                el1val = item1.querySelector('.' + key).innerText;
+                el2val = item2.querySelector('.' + key).innerText;
                 el1val = (key === 'name') ? el1val : parseInt(el1val);
                 el2val = (key === 'name') ? el2val : parseInt(el2val);
                 if (asc) {
@@ -95,16 +109,15 @@
     function loadHeaders() {
         var thead = document.createElement('thead'),
             tr = document.createElement('tr'),
-            th = {},
             fragment = document.createDocumentFragment(),
-            key = {};
+            th, key;
         for (key in ITEMS[0]) {
             theaders.push(key);
-            th = appendChild(tr, 'th', {'innerHTML': key});
+            th = appendChild(tr, 'th', {'innerText': key});
             th.appendChild(sortBtn(key, true));
             th.appendChild(sortBtn(key, false));
         }
-        appendChild(tr, 'th', {'innerHTML': 'cart'});
+        appendChild(tr, 'th', {'innerText': 'cart'});
         thead.appendChild(tr);
         fragment.appendChild(thead);
         itemsTable.appendChild(fragment);
@@ -159,6 +172,9 @@
         return id;
     }
 
+    function getByClassName(parentElement, className) {
+        return parentElement.querySelector('.' + className);
+    }
     /**
      * Creates add and remove buttons.
      * @param {Element} tr a reference to a row of the items table, where buttons should be created
@@ -167,17 +183,14 @@
      * @returns {Object} an object holding IDes of the callbacks handling add and remove events
      */
     function createAddRemoveBtns(tr, addHandlerID, removeHandlerID) {
-        var element = {},
-            itemAmountEl = {},
-            cartBtn = {},
-            price = 0;
-        price = parseInt(tr.querySelector('.price').innerHTML);
-        element = appendChild(tr, 'td');
-        element = appendChild(element, 'span', {'className': 'item-amount'});
-        itemAmountEl = appendChild(element, 'input', {'className': 'amount', 'value': '0', 'disabled': 'true'});
-        cartBtn = appendChild(element, 'span', {'className': 'add', 'innerHTML': 'Add'});
+        var parentEl, itemAmountEl, cartBtn,
+            price = parseInt(getByClassName(tr, CLASS_NAMES.itemPrice).innerText);
+        parentEl = appendChild(tr, 'td');
+        parentEl = appendChild(parentEl, 'span', {'className': CLASS_NAMES.itemAmountController});
+        itemAmountEl = appendChild(parentEl, 'input', {'className': CLASS_NAMES.itemAmount, 'value': '0', 'disabled': 'true'});
+        cartBtn = appendChild(parentEl, 'span', {'className': CLASS_NAMES.addItemBtn, 'innerText': 'Add'});
         addHandlerID = addToCartHandler(cartBtn, itemAmountEl, price, addHandlerID);
-        cartBtn = appendChild(element, 'span', {'className': 'remove', 'innerHTML': 'Remove'});
+        cartBtn = appendChild(parentEl, 'span', {'className': CLASS_NAMES.removeItemBtn, 'innerText': 'Remove'});
         removeHandlerID = removeFromCartHandler(cartBtn, itemAmountEl, price, removeHandlerID);
         return {'addHandlerID': addHandlerID, 'removeHandlerID': removeHandlerID};
     }
@@ -186,17 +199,17 @@
      * Creates all the item elements including add and remove buttons.
      */
     function createItemElements() {
-        var i = 0, j = 0, tr = {}, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
+        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
         for (j = 0; j < ITEMS.length; j++) {
             tr = document.createElement('tr');
             tr.dataset.index = j;
             for (i = 0; i < theaders.length; i++) {
-                appendChild(tr, 'td', {'innerHTML': ITEMS[j][theaders[i]], 'className': theaders[i]});
+                appendChild(tr, 'td', {'innerText': ITEMS[j][theaders[i]], 'className': theaders[i]});
             }
             cartBtnsIDs = createAddRemoveBtns(tr, addHandlerID, removeHandlerID);
             addHandlerID = cartBtnsIDs.addHandlerID;
             removeHandlerID = cartBtnsIDs.removeHandlerID;
-            itemElements.push(tr);
+            itemEls.push(tr);
         }
     }
 
@@ -210,7 +223,7 @@
         lastIndex = (lastIndex < ITEMS.length) ? lastIndex : ITEMS.length;
         tbody.innerHTML = "";
         for (i = firstIndex; i < lastIndex; i++) {
-            tbody.appendChild(itemElements[i]);
+            tbody.appendChild(itemEls[i]);
         }
         fragment.appendChild(tbody);
         itemsTable.appendChild(fragment);
@@ -221,10 +234,7 @@
      */
     function createItemsAmountInputHandler() {
         var eventName = 'onchange',
-            id = 0,
-            firstItem = 0,
-            newCurPage = 0,
-            topRow = 0;
+            id = 0, firstItem = 0, newCurPage = 0, topRow = 0;
         id = eventBus.subscribe(eventName, function (itemsAmount) {
             topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
             newCurPage = Math.floor(topRow / itemsAmount) + 1;
@@ -246,15 +256,15 @@
             eventName = 'myevent';
         id = eventBus.subscribe(eventName, function (e) {
             var data = JSON.parse(e.dataset.paging);
-            document.querySelector('.current-page-btn').className = 'pages-nav-btn';
+            getByClassName(paginationEl, CLASS_NAMES.curPageBtn).classList.remove(CLASS_NAMES.curPageBtn);
             loadItems(data.start, data.end);
-            e.className = e.className + ' current-page-btn';
+            e.classList.add(CLASS_NAMES.curPageBtn);
         });
         element.addEventListener(eventName, function (e) {
             eventBus.publish(eventName, id, this);
         }, false);
         element.onclick = function () {
-            element.dispatchEvent(new CustomEvent(eventName, { 'detail': 'data' }));
+            element.dispatchEvent(new CustomEvent(eventName, { 'detail': {} }));
         }
     }
 
@@ -264,23 +274,23 @@
      */
     function loadPaginationBar(curPage) {
         var fragment = document.createDocumentFragment(),
-            pageNmb = 0,
+            pageNmb,
             displayedItemsNmb = (itemsNmbEl.value < ITEMS.length) ? itemsNmbEl.value : ITEMS.length,
-            paginationBtn = {},
-            className = '';
+            paginationBtn,
+            className = '',
+            pageItemAtts, firstItemIndex, endItemIndex;
         paginationEl.innerHTML = "";
 
         for (pageNmb = 1; (pageNmb - 1) * displayedItemsNmb < ITEMS.length; pageNmb++) {
-            className = (pageNmb === curPage) ? 'pages-nav-btn current-page-btn' : 'pages-nav-btn';
-            paginationBtn = appendChild(fragment, 'li',
-                {
-                    'className': className,
-                    'dataset': {
-                        'paging': '{"start": ' + (pageNmb - 1) * displayedItemsNmb + ', "end": ' + pageNmb * displayedItemsNmb + '}'
-                    }
-                }
-            );
-            appendChild(paginationBtn, 'a', {'className': 'pages-nav-link', 'href': '#', 'innerHTML': pageNmb});
+            className = (pageNmb === curPage) ? (CLASS_NAMES.curPageBtn + ' ' + CLASS_NAMES.pageBtn) : CLASS_NAMES.pageBtn;
+            firstItemIndex = (pageNmb - 1) * displayedItemsNmb;
+            endItemIndex = pageNmb * displayedItemsNmb;
+            pageItemAtts = {
+                'className': className,
+                'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
+            };
+            paginationBtn = appendChild(fragment, 'li', pageItemAtts);
+            appendChild(paginationBtn, 'span', {'className': CLASS_NAMES.pageLink, 'innerText': pageNmb});
             pageBtnHandler(paginationBtn);
         }
         paginationEl.appendChild(fragment);
@@ -290,15 +300,20 @@
      * Creates a listener for reset cart event and subscribes it to the event bus.
      */
     function handleResetCartButton() {
-        var resetBtn = document.querySelector('.reset-cart-btn'),
-            id = 0,
+        var id = 0,
             eventName = 'onclick';
         id = eventBus.subscribe(eventName, function () {
-            document.querySelector('.amount').forEach(function(element) { element.querySelector('.amount').value = 0; });
-            itemElements.forEach(function(element) { element.querySelector('.amount').value = 0; });
-            document.querySelector('.total-bill').value = 0;
+            getByClassName(itemsTable, CLASS_NAMES.itemAmount).forEach(function(element) {
+                element.value = 0;
+            });
+            itemEls.forEach(function(element) {
+                getByClassName(element, CLASS_NAMES.itemAmount).value = 0;
+            });
+            totalBillEl.value = 0;
         });
-        resetBtn.addEventListener(eventName, function () { eventBus.publish(eventName, id); });
+        resetCartBtn.addEventListener(eventName, function () {
+            eventBus.publish(eventName, id, {});
+        });
     }
 
     loadHeaders();
