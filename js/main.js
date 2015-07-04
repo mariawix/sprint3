@@ -4,10 +4,12 @@
 
 
 (function () {
+    "use strict";
     var itemsTable = document.querySelector('.items-table'),                // items table
         itemsNmbEl = document.querySelector('.displayed-items-nmb-input'),  // DOM element holding number of items per page
+        totalBillEl = document.querySelector('.total-bill'),                // DOM element holding total bill
         paginationEl = document.querySelector('.pages-nav'),                // pagination bar
-        tbody = document.createElement('tbody');                            // body of the items table
+        tbody = document.createElement('tbody'),                            // body of the items table
         itemElements = [],          // items elements
         theaders = [],              // headers of the items table
         eventBus = new PubSub();    // events manager
@@ -110,86 +112,90 @@
 
     /**
      * Creates an event listener for "add" button click and subscribes it to the event bus.
-     * @param {DOMElement} target a reference to the object that dispatched the event
-     * @param {Number} itemAmountElement number of items per page
+     * @param {DOMElement} target a reference to the add button element that dispatched the event
+     * @param {Number} itemAmountElement amount of the item added to the cart
      * @param {Number} price price of the added item
-     * @param {DOMElement} cartElement a reference to the total bill element
+     * @param {Number} id id of the callback function handling the event, if -1 then the callback will be created
+     * @returns id of the callback function handling the event
      */
-    function addToCartHandler(target, itemAmountElement, price, cartElement) {
-        var id = 0,
-            eventName = 'onclick',
-            totalBill = 0;
-        var id = eventBus.subscribe(eventName, function () {
-            totalBill = parseInt(cartElement.value);
-            itemAmountElement.value = parseInt(itemAmountElement.value) + 1;
-            cartElement.value = totalBill + price;
-        });
-        target[eventName] = function () {
-            eventBus.publish(eventName, id);
+    function addToCartHandler(target, itemAmountElement, price, id) {
+        var eventName = 'onclick';
+        if (id === -1) {
+            id = eventBus.subscribe(eventName, function (data) {
+                var totalBill = parseInt(totalBillEl.value);
+                data.amount.value = parseInt(data.amount.value) + 1;
+                totalBillEl.value = totalBill + data.price;
+            });
         }
+        target[eventName] = function () {
+            eventBus.publish(eventName, id, {'amount': itemAmountElement, 'price': price});
+        }
+        return id;
     }
 
     /**
      * Creates an event listener for "remove" button click and subscribes it to the event bus.
-     * @param {DOMElement} target a reference to the object that dispatched the event
-     * @param {Number} itemAmountElement number of items per page
+     * @param {DOMElement} target a reference to the remove button element that dispatched the event
+     * @param {Number} itemAmountElement amount of the item added to the cart
      * @param {Number} price price of the added item
-     * @param {DOMElement} cartElement a reference to the total bill element
+     * @param {Number} id id of the callback function handling the event, if -1 then the callback will be created
+     * @returns id of the callback function handling the event
      */
-    function removeFromCartHandler(target, itemAmountElement, price, cartElement) {
-        var id = 0,
-            eventName = 'onclick',
-            totalBill = 0,
-            itemsAmount = 0;
-        var id = eventBus.subscribe(eventName, function () {
-            totalBill = parseInt(cartElement.value);
-            itemsAmount = parseInt(itemAmountElement.value);
-            if (itemsAmount > 0) {
-                itemAmountElement.value = itemsAmount - 1;
-                cartElement.value = totalBill - price;
-            }
-        });
-        target[eventName] = function () {
-            eventBus.publish(eventName, id);
+    function removeFromCartHandler(target, itemAmountElement, price, id) {
+        var eventName = 'onclick';
+        if (id === -1) {
+            id = eventBus.subscribe(eventName, function (data) {
+                var totalBill = parseInt(totalBillEl.value),
+                    itemAmount = parseInt(data.amount.value);
+                if (itemAmount > 0) {
+                    data.amount.value = itemAmount - 1;
+                    totalBillEl.value = totalBill - data.price;
+                }
+            });
         }
+        target[eventName] = function () {
+            eventBus.publish(eventName, id, {'amount': itemAmountElement, 'price': price});
+        }
+        return id;
     }
 
     /**
-     * Creates add and remove.
+     * Creates add and remove buttons.
      * @param {DOMElement} tr a reference to a row of the items table, where buttons should be created
-     * @returns the row
+     * @param {Number} addHandlerID ID of the callback handling add event, if -1 then a new callback will be created
+     * @param {Number} removeHandlerID ID of the callback handling remove event, if -1 then a new callback will be created
+     * @returns an object holding IDes of the callbacks handling add and remove events
      */
-    function createAddRemoveBtns(tr) {
-        var cart = document.querySelector('.total-bill'),
-            element = {},
-            pagesAmountEl = {},
+    function createAddRemoveBtns(tr, addHandlerID, removeHandlerID) {
+        var element = {},
+            itemAmountEl = {},
             cartBtn = {},
             price = 0;
         price = parseInt(tr.querySelector('.price').innerHTML);
         element = appendChild(tr, 'td');
         element = appendChild(element, 'span', {'className': 'item-amount'});
-        pagesAmountEl = appendChild(element, 'input', {'className': 'amount', 'value': '0', 'disabled': 'true'});
-        cartBtn = appendChild(element, 'a', {'className': 'add', 'href': '#', 'innerHTML': 'Add'});
-        addToCartHandler(cartBtn, pagesAmountEl, price, cart);
-        cartBtn = appendChild(element, 'a', {'className': 'remove', 'href': '#', 'innerHTML': 'Remove'});
-        removeFromCartHandler(cartBtn, pagesAmountEl, price, cart);
-        return tr;
+        itemAmountEl = appendChild(element, 'input', {'className': 'amount', 'value': '0', 'disabled': 'true'});
+        cartBtn = appendChild(element, 'span', {'className': 'add', 'innerHTML': 'Add'});
+        addHandlerID = addToCartHandler(cartBtn, itemAmountEl, price, addHandlerID);
+        cartBtn = appendChild(element, 'span', {'className': 'remove', 'innerHTML': 'Remove'});
+        removeHandlerID = removeFromCartHandler(cartBtn, itemAmountEl, price, removeHandlerID);
+        return {'addHandlerID': addHandlerID, 'removeHandlerID': removeHandlerID};
     }
 
     /**
-     * Creates all the items elements including add and remove buttons.
+     * Creates all the item elements including add and remove buttons.
      */
     function createItemElements() {
-        var j = 0,
-            i = 0,
-            tr = {};
+        var i = 0, j = 0, tr = {}, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
         for (j = 0; j < ITEMS.length; j++) {
             tr = document.createElement('tr');
             tr.dataset.index = j;
             for (i = 0; i < theaders.length; i++) {
                 appendChild(tr, 'td', {'innerHTML': ITEMS[j][theaders[i]], 'className': theaders[i]});
             }
-            tr = createAddRemoveBtns(tr);
+            cartBtnsIDs = createAddRemoveBtns(tr, addHandlerID, removeHandlerID);
+            addHandlerID = cartBtnsIDs.addHandlerID;
+            removeHandlerID = cartBtnsIDs.removeHandlerID;
             itemElements.push(tr);
         }
     }
@@ -200,8 +206,7 @@
      * @param {Number} lastIndex index at which to end loading
      */
     function loadItems(firstIndex, lastIndex) {
-        var fragment = document.createDocumentFragment(),
-            i = 0;
+        var fragment = document.createDocumentFragment(), i = 0;
         lastIndex = (lastIndex < ITEMS.length) ? lastIndex : ITEMS.length;
         tbody.innerHTML = "";
         for (i = firstIndex; i < lastIndex; i++) {
@@ -222,7 +227,7 @@
             topRow = 0;
         id = eventBus.subscribe(eventName, function (itemsAmount) {
             topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
-            newCurPage = Math.floor(topRow/itemsAmount) + 1;
+            newCurPage = Math.floor(topRow / itemsAmount) + 1;
             firstItem = (newCurPage - 1) * itemsAmount;
             loadItems(firstItem, firstItem + itemsAmount);
             loadPaginationBar(newCurPage);
@@ -233,7 +238,7 @@
     }
 
     /**
-     * Creates page button click callback, subscribes it to event bus.
+     * Creates page button click callback and subscribes it to event bus.
      * @param {DOMElement} element button element
      */
     function pageBtnHandler(element) {
