@@ -17,10 +17,10 @@
     /**
      * Creates a new DOM element and appends it to the specified parent element.
      * Returns the newly created element.
-     * @param {DOMElement} parentElement parent element of the newly created element
+     * @param {Element} parentElement parent element of the newly created element
      * @param {String} childName tag name of the child element
      * @param {Object} childAtts attributes of the child element in the form {name: value, name: value ...}
-     * @returns the newly created element
+     * @returns {Element} the newly created element
      */
     function appendChild(parentElement, childName, childAtts) {
         var key = '',
@@ -112,11 +112,11 @@
 
     /**
      * Creates an event listener for "add" button click and subscribes it to the event bus.
-     * @param {DOMElement} target a reference to the add button element that dispatched the event
+     * @param {Element} target a reference to the add button element that dispatched the event
      * @param {Number} itemAmountElement amount of the item added to the cart
      * @param {Number} price price of the added item
      * @param {Number} id id of the callback function handling the event, if -1 then the callback will be created
-     * @returns id of the callback function handling the event
+     * @returns {Number} id of the callback function handling the event
      */
     function addToCartHandler(target, itemAmountElement, price, id) {
         var eventName = 'onclick';
@@ -135,11 +135,11 @@
 
     /**
      * Creates an event listener for "remove" button click and subscribes it to the event bus.
-     * @param {DOMElement} target a reference to the remove button element that dispatched the event
+     * @param {Element} target a reference to the remove button element that dispatched the event
      * @param {Number} itemAmountElement amount of the item added to the cart
      * @param {Number} price price of the added item
      * @param {Number} id id of the callback function handling the event, if -1 then the callback will be created
-     * @returns id of the callback function handling the event
+     * @returns {Number} id of the callback function handling the event
      */
     function removeFromCartHandler(target, itemAmountElement, price, id) {
         var eventName = 'onclick';
@@ -161,10 +161,10 @@
 
     /**
      * Creates add and remove buttons.
-     * @param {DOMElement} tr a reference to a row of the items table, where buttons should be created
+     * @param {Element} tr a reference to a row of the items table, where buttons should be created
      * @param {Number} addHandlerID ID of the callback handling add event, if -1 then a new callback will be created
      * @param {Number} removeHandlerID ID of the callback handling remove event, if -1 then a new callback will be created
-     * @returns an object holding IDes of the callbacks handling add and remove events
+     * @returns {Object} an object holding IDes of the callbacks handling add and remove events
      */
     function createAddRemoveBtns(tr, addHandlerID, removeHandlerID) {
         var element = {},
@@ -239,7 +239,7 @@
 
     /**
      * Creates page button click callback and subscribes it to event bus.
-     * @param {DOMElement} element button element
+     * @param {Element} element button element
      */
     function pageBtnHandler(element) {
         var id = 0,

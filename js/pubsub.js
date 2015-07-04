@@ -14,7 +14,7 @@ function PubSub() {
      * Returns true if there exists an event with the given name and id, false - otherwise.
      * @param {String} name event name
      * @param {Number} id event id
-     * @returns true if there exists an event with the given name and id, false - otherwise.
+     * @returns {Boolean} true if there exists an event with the given name and id, false - otherwise.
      */
     function exists(name, id) {
         return (events[name] && id < events[name].length) ? true : false;
@@ -24,7 +24,7 @@ function PubSub() {
      * Registers a new event and returns its id.
      * @param {String} name event name
      * @param {Function} cb callback function of the event
-     * @returns id of the subscribed event
+     * @returns {Number} id of the subscribed event
      */
     this.subscribe = function (name, cb) {
         if (!events.hasOwnProperty(name)) {
@@ -38,7 +38,7 @@ function PubSub() {
      * Removes event with specified name from the event bus.
      * @param {String} name event name
      * @param {Number} id event id
-     * @returns true if succeeds, false - otherwise
+     * @returns {Boolean} true if succeeds, false - otherwise
      */
     this.unsubscribe = function (name, id) {
         if (!exists(name, id)) {
@@ -55,8 +55,8 @@ function PubSub() {
      * Returns true if succeeds, false - otherwise.
      * @param {String} name event name
      * @param {Number} id event id
-     * @param {Anything} data data to be passed to event handler
-     * @returns true if succeeds, false - otherwise
+     * @param {Object} data data to be passed to event handler
+     * @returns {Boolean} true if succeeds, false - otherwise
      */
     this.publish = function(name, id, data) {
         if (!exists(name, id)) {
