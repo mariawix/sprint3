@@ -303,17 +303,14 @@ var CLASS_NAMES = {
         var id = 0,
             eventName = 'onclick';
         id = eventBus.subscribe(eventName, function () {
-            getByClassName(itemsTable, CLASS_NAMES.itemAmount).forEach(function(element) {
-                element.value = 0;
-            });
             itemEls.forEach(function(element) {
                 getByClassName(element, CLASS_NAMES.itemAmount).value = 0;
             });
             totalBillEl.value = 0;
         });
-        resetCartBtn.addEventListener(eventName, function () {
+        resetCartBtn[eventName] = function () {
             eventBus.publish(eventName, id, {});
-        });
+        };
     }
 
     loadHeaders();
