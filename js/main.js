@@ -15,7 +15,11 @@ var CLASS_NAMES = {
     itemPrice: 'price',                  // Element containing item price value
     pageBtn: 'page-btn',                 // Pagination bar button
     curPageBtn: 'current-page-btn',      // Current page button
-    pageLink: 'page-link'                // Page link
+    pageLink: 'page-link',                // Page link
+    tBodyCell: 'td',
+    tHeaderCell: 'th',
+    tRow: 'tr'
+
 };
 
 (function () {
@@ -25,7 +29,8 @@ var CLASS_NAMES = {
         totalBillEl = document.querySelector('.total-bill'),                // DOM element holding total bill
         paginationEl = document.querySelector('.pages-nav'),                // pagination bar
         resetCartBtn = document.querySelector('.reset-cart-btn'),           // DOM element enabling resetting cart
-        tbody = document.createElement('tbody'),                            // body of the items table
+        thead = document.querySelector('.thead'),
+        tbody = document.querySelector('.tbody'),                            // body of the items table
         itemEls = [],               // item elements
         theaders = [],              // headers of the items table
         eventBus = new PubSub();    // events manager
@@ -34,17 +39,17 @@ var CLASS_NAMES = {
      * Creates head of the items table using properties of an ITEMS object.
      */
     function loadHeaders() {
-        var thead = document.createElement('thead'),
-            tr = document.createElement('tr'),
+        var tr = document.createElement('div'),
             fragment = document.createDocumentFragment(),
             th, key;
+        tr.classList.add(CLASS_NAMES.tRow);
         for (key in ITEMS[0]) {
             theaders.push(key);
-            th = appendChild(tr, 'th', {'innerText': key});
+            th = appendChild(tr, 'div', {'innerText': key, 'className': CLASS_NAMES.tHeaderCell + ' ' + key});
             th.appendChild(sortBtn(key, true));
             th.appendChild(sortBtn(key, false));
         }
-        appendChild(tr, 'th', {'innerText': 'cart'});
+        appendChild(tr, 'div', {'innerText': 'cart', 'className': CLASS_NAMES.tHeaderCell});
         thead.appendChild(tr);
         fragment.appendChild(thead);
         itemsTable.appendChild(fragment);
@@ -54,17 +59,19 @@ var CLASS_NAMES = {
      * Creates all the item elements including add and remove buttons.
      */
     function createItemElements() {
-        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {}, className = '';
+        var i = 0, j = 0, tr, td, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {}, className = '';
         for (j = 0; j < ITEMS.length; j++) {
-            tr = document.createElement('tr');
+            tr = document.createElement('div');
+            tr.classList.add(CLASS_NAMES.tRow);
             tr.dataset.index = j;
             for (i = 0; i < theaders.length; i++) {
-                className =  theaders[i];
-                if (className === 'image') {
-                    appendChild(tr, 'td', {'innerHTML': '<img src="' + ITEMS[j][className] + '" alt="" />', 'className': className});
+                className =  theaders[i] + ' ' + CLASS_NAMES.tBodyCell;
+                if (theaders[i] === 'image') {
+                    td = appendChild(tr, 'div', {'className': className});
+                    appendChild(td, 'img', {'src': ITEMS[j][theaders[i]], 'alt': 'image'});
                 }
                 else {
-                    appendChild(tr, 'td', {'innerText': ITEMS[j][className], 'className': className});
+                    appendChild(tr, 'div', {'innerText': ITEMS[j][theaders[i]], 'className': className});
                 }
 
             }
@@ -98,7 +105,7 @@ var CLASS_NAMES = {
         var eventName = 'onchange',
             id = 0, firstItem = 0, newCurPage = 0, topRow = 0;
         id = eventBus.subscribe(eventName, function (itemsAmount) {
-            topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
+            topRow = parseInt(tbody.querySelector('.' + CLASS_NAMES.tRow + ':first-child').dataset.index);
             newCurPage = Math.floor(topRow / itemsAmount) + 1;
             firstItem = (newCurPage - 1) * itemsAmount;
             loadItems(firstItem, firstItem + itemsAmount);
@@ -310,7 +317,7 @@ var CLASS_NAMES = {
     function createAddRemoveBtns(tr, addHandlerID, removeHandlerID) {
         var parentEl, itemAmountEl, cartBtn,
             price = parseInt(getByClassName(tr, CLASS_NAMES.itemPrice).innerText);
-        parentEl = appendChild(tr, 'td');
+        parentEl = appendChild(tr, 'div', {'className': CLASS_NAMES.tBodyCell});
         parentEl = appendChild(parentEl, 'span', {'className': CLASS_NAMES.itemAmountController});
         itemAmountEl = appendChild(parentEl, 'input', {'className': CLASS_NAMES.itemAmount, 'value': '0', 'disabled': 'true'});
         cartBtn = appendChild(parentEl, 'span', {'className': CLASS_NAMES.addItemBtn, 'innerText': 'Add'});
