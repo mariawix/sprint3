@@ -1,7 +1,6 @@
 var ITEMS = (function() {
     var items = [
-            {
-                "id": 0,
+            {   "id": 0,
                 "name": "Exoplode",
                 "description": "Est culpa veniam sint aliquip. Anim esse et et ullamco aute ullamco voluptate irure fugiat exercitation velit cupidatat. Ipsum deserunt cupidatat eu laborum ut mollit.\r\n",
                 "image": "http://placehold.it/32x32",
@@ -707,6 +706,15 @@ var ITEMS = (function() {
         compoundItems = [],
         compoundItemsCnstrs;
 
+    /**
+     * Item base class
+     * @param {Number} id item id
+     * @param {String} name item name
+     * @param {String} description item description
+     * @param {String} image url to item image
+     * @param {Number} price item price
+     * @constructor
+     */
     function Item(id, name, description, image, price) {
         this.id = id;
         this.name = name;
@@ -716,26 +724,42 @@ var ITEMS = (function() {
     }
 
 
+    /**
+     * On sale item
+     * @constructor
+     */
     function OnSaleItem() {
         Item.apply(this, arguments);
         this.type = 'On sale';
     }
-
+    /**
+     * Out of stock item
+     * @constructor
+     */
     function OutOfStockItem() {
         Item.apply(this, arguments);
         this.type = 'Out of stock';
     }
-
+    /**
+     * New item
+     * @constructor
+     */
     function NewItem() {
         Item.apply(this, arguments);
         this.type = 'New items';
     }
-
+    /**
+     * Bundle item
+     * @constructor
+     */
     function BundleItem() {
         Item.apply(this, arguments);
         this.type = 'Bundle';
     }
-
+    /**
+     * Promotion item (items which appear at the top of the list)
+     * @constructor
+     */
     function PromotionItem() {
         Item.apply(this, arguments);
         this.type = 'Promotions';
@@ -749,6 +773,5 @@ var ITEMS = (function() {
         type = Math.floor(Math.random() * compoundItemsCnstrs.length);
         compoundItems.push(new compoundItemsCnstrs[type](item['id'], item.name, item.description, item.image, item.price));
     }
-    console.dir(compoundItems[0]);
     return compoundItems;
 })();
