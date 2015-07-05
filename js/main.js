@@ -44,10 +44,12 @@ var CLASS_NAMES = {
             th, key;
         tr.classList.add(CLASS_NAMES.tRow);
         for (key in ITEMS[0]) {
-            theaders.push(key);
-            th = appendChild(tr, 'div', {'innerText': key, 'className': CLASS_NAMES.tHeaderCell + ' ' + key});
-            th.appendChild(sortBtn(key, true));
-            th.appendChild(sortBtn(key, false));
+            if (ITEMS[0].hasOwnProperty(key)) {
+                theaders.push(key);
+                th = appendChild(tr, 'div', {'innerText': key, 'className': CLASS_NAMES.tHeaderCell + ' ' + key});
+                th.appendChild(sortBtn(key, true));
+                th.appendChild(sortBtn(key, false));
+            }
         }
         appendChild(tr, 'div', {'innerText': 'cart', 'className': CLASS_NAMES.tHeaderCell});
         thead.appendChild(tr);
