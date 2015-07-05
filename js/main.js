@@ -54,12 +54,19 @@ var CLASS_NAMES = {
      * Creates all the item elements including add and remove buttons.
      */
     function createItemElements() {
-        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
+        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {}, className = '';
         for (j = 0; j < ITEMS.length; j++) {
             tr = document.createElement('tr');
             tr.dataset.index = j;
             for (i = 0; i < theaders.length; i++) {
-                appendChild(tr, 'td', {'innerText': ITEMS[j][theaders[i]], 'className': theaders[i]});
+                className =  theaders[i];
+                if (className === 'image') {
+                    appendChild(tr, 'td', {'innerHTML': '<img src="' + ITEMS[j][className] + '" alt="" />', 'className': className});
+                }
+                else {
+                    appendChild(tr, 'td', {'innerText': ITEMS[j][className], 'className': className});
+                }
+
             }
             cartBtnsIDs = createAddRemoveBtns(tr, addHandlerID, removeHandlerID);
             addHandlerID = cartBtnsIDs.addHandlerID;
