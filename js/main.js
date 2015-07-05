@@ -31,6 +31,138 @@ var CLASS_NAMES = {
         eventBus = new PubSub();    // events manager
 
     /**
+     * Creates head of the items table using properties of an ITEMS object.
+     */
+    function loadHeaders() {
+        var thead = document.createElement('thead'),
+            tr = document.createElement('tr'),
+            fragment = document.createDocumentFragment(),
+            th, key;
+        for (key in ITEMS[0]) {
+            theaders.push(key);
+            th = appendChild(tr, 'th', {'innerText': key});
+            th.appendChild(sortBtn(key, true));
+            th.appendChild(sortBtn(key, false));
+        }
+        appendChild(tr, 'th', {'innerText': 'cart'});
+        thead.appendChild(tr);
+        fragment.appendChild(thead);
+        itemsTable.appendChild(fragment);
+    }
+
+    /**
+     * Creates all the item elements including add and remove buttons.
+     */
+    function createItemElements() {
+        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
+        for (j = 0; j < ITEMS.length; j++) {
+            tr = document.createElement('tr');
+            tr.dataset.index = j;
+            for (i = 0; i < theaders.length; i++) {
+                appendChild(tr, 'td', {'innerText': ITEMS[j][theaders[i]], 'className': theaders[i]});
+            }
+            cartBtnsIDs = createAddRemoveBtns(tr, addHandlerID, removeHandlerID);
+            addHandlerID = cartBtnsIDs.addHandlerID;
+            removeHandlerID = cartBtnsIDs.removeHandlerID;
+            itemEls.push(tr);
+        }
+    }
+
+    /**
+     * Loads items with indexes [firstIndex (including), lastIndex (excluding)) to the table
+     * @param {Number} firstIndex index of the first item to be loaded
+     * @param {Number} lastIndex index at which to end loading
+     */
+    function loadItems(firstIndex, lastIndex) {
+        var fragment = document.createDocumentFragment(), i = 0;
+        lastIndex = (lastIndex < ITEMS.length) ? lastIndex : ITEMS.length;
+        tbody.innerHTML = "";
+        for (i = firstIndex; i < lastIndex; i++) {
+            tbody.appendChild(itemEls[i]);
+        }
+        fragment.appendChild(tbody);
+        itemsTable.appendChild(fragment);
+    }
+
+    /**
+     * Creates items per page change event listener and subscribes it to the event bus.
+     */
+    function createItemsAmountInputHandler() {
+        var eventName = 'onchange',
+            id = 0, firstItem = 0, newCurPage = 0, topRow = 0;
+        id = eventBus.subscribe(eventName, function (itemsAmount) {
+            topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
+            newCurPage = Math.floor(topRow / itemsAmount) + 1;
+            firstItem = (newCurPage - 1) * itemsAmount;
+            loadItems(firstItem, firstItem + itemsAmount);
+            loadPaginationBar(newCurPage);
+        });
+        itemsNmbEl[eventName] = function () {
+            eventBus.publish(eventName, id, parseInt(this.value));
+        }
+    }
+
+    /**
+     * Initializes pagination bar.
+     * @param {Number} curPage number of displayed page
+     */
+    function loadPaginationBar(curPage) {
+        var fragment = document.createDocumentFragment(),
+            pageNmb,
+            displayedItemsNmb = (itemsNmbEl.value < ITEMS.length) ? itemsNmbEl.value : ITEMS.length,
+            paginationBtn,
+            className = '',
+            pageItemAtts, firstItemIndex, endItemIndex;
+        paginationEl.innerHTML = "";
+
+        for (pageNmb = 1; (pageNmb - 1) * displayedItemsNmb < ITEMS.length; pageNmb++) {
+            className = (pageNmb === curPage) ? (CLASS_NAMES.curPageBtn + ' ' + CLASS_NAMES.pageBtn) : CLASS_NAMES.pageBtn;
+            firstItemIndex = (pageNmb - 1) * displayedItemsNmb;
+            endItemIndex = pageNmb * displayedItemsNmb;
+            pageItemAtts = {
+                'className': className,
+                'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
+            };
+            paginationBtn = appendChild(fragment, 'li', pageItemAtts);
+            appendChild(paginationBtn, 'span', {'className': CLASS_NAMES.pageLink, 'innerText': pageNmb});
+            pageBtnHandler(paginationBtn);
+        }
+        paginationEl.appendChild(fragment);
+    }
+
+    /**
+     * Creates a listener for reset cart event and subscribes it to the event bus.
+     */
+    function handleResetCartButton() {
+        var id = 0,
+            eventName = 'onclick';
+        id = eventBus.subscribe(eventName, function () {
+            itemEls.forEach(function(element) {
+                getByClassName(element, CLASS_NAMES.itemAmount).value = 0;
+            });
+            totalBillEl.value = 0;
+        });
+        resetCartBtn[eventName] = function () {
+            eventBus.publish(eventName, id, {});
+        };
+    }
+
+
+
+    loadHeaders();
+    createItemElements();
+    loadItems(0, parseInt(itemsNmbEl.value));
+    createItemsAmountInputHandler();
+    loadPaginationBar(1);
+    handleResetCartButton();
+
+
+
+
+    /**************************************************************************************************
+     *                                              Helpers
+     **************************************************************************************************/
+    /**
      * Creates a new DOM element and appends it to the specified parent element.
      * @param {Element} parentElement parent element of the newly created element
      * @param {String} childName tag name of the child element
@@ -104,26 +236,6 @@ var CLASS_NAMES = {
     }
 
     /**
-     * Creates head of the items table using properties of an ITEMS object.
-     */
-    function loadHeaders() {
-        var thead = document.createElement('thead'),
-            tr = document.createElement('tr'),
-            fragment = document.createDocumentFragment(),
-            th, key;
-        for (key in ITEMS[0]) {
-            theaders.push(key);
-            th = appendChild(tr, 'th', {'innerText': key});
-            th.appendChild(sortBtn(key, true));
-            th.appendChild(sortBtn(key, false));
-        }
-        appendChild(tr, 'th', {'innerText': 'cart'});
-        thead.appendChild(tr);
-        fragment.appendChild(thead);
-        itemsTable.appendChild(fragment);
-    }
-
-    /**
      * Creates an event listener for "add" button click and subscribes it to the event bus.
      * @param {Element} target a reference to the add button element that dispatched the event
      * @param {Number} itemAmountElement amount of the item added to the cart
@@ -172,6 +284,12 @@ var CLASS_NAMES = {
         return id;
     }
 
+    /**
+     * Returns a child element having given class name, contained inside specified parent element.
+     * @param {Element} parentElement parent element to search in
+     * @param {String} className class name of the child element
+     * @returns {Element} found child element
+     */
     function getByClassName(parentElement, className) {
         return parentElement.querySelector('.' + className);
     }
@@ -196,58 +314,6 @@ var CLASS_NAMES = {
     }
 
     /**
-     * Creates all the item elements including add and remove buttons.
-     */
-    function createItemElements() {
-        var i = 0, j = 0, tr, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs = {};
-        for (j = 0; j < ITEMS.length; j++) {
-            tr = document.createElement('tr');
-            tr.dataset.index = j;
-            for (i = 0; i < theaders.length; i++) {
-                appendChild(tr, 'td', {'innerText': ITEMS[j][theaders[i]], 'className': theaders[i]});
-            }
-            cartBtnsIDs = createAddRemoveBtns(tr, addHandlerID, removeHandlerID);
-            addHandlerID = cartBtnsIDs.addHandlerID;
-            removeHandlerID = cartBtnsIDs.removeHandlerID;
-            itemEls.push(tr);
-        }
-    }
-
-    /**
-     * Loads items with indexes [firstIndex (including), lastIndex (excluding)) to the table
-     * @param {Number} firstIndex index of the first item to be loaded
-     * @param {Number} lastIndex index at which to end loading
-     */
-    function loadItems(firstIndex, lastIndex) {
-        var fragment = document.createDocumentFragment(), i = 0;
-        lastIndex = (lastIndex < ITEMS.length) ? lastIndex : ITEMS.length;
-        tbody.innerHTML = "";
-        for (i = firstIndex; i < lastIndex; i++) {
-            tbody.appendChild(itemEls[i]);
-        }
-        fragment.appendChild(tbody);
-        itemsTable.appendChild(fragment);
-    }
-
-    /**
-     * Creates items per page change event listener and subscribes it to the event bus.
-     */
-    function createItemsAmountInputHandler() {
-        var eventName = 'onchange',
-            id = 0, firstItem = 0, newCurPage = 0, topRow = 0;
-        id = eventBus.subscribe(eventName, function (itemsAmount) {
-            topRow = parseInt(tbody.querySelector('tr:first-child').dataset.index);
-            newCurPage = Math.floor(topRow / itemsAmount) + 1;
-            firstItem = (newCurPage - 1) * itemsAmount;
-            loadItems(firstItem, firstItem + itemsAmount);
-            loadPaginationBar(newCurPage);
-        });
-        itemsNmbEl[eventName] = function () {
-            eventBus.publish(eventName, id, parseInt(this.value));
-        }
-    }
-
-    /**
      * Creates page button click callback and subscribes it to event bus.
      * @param {Element} element button element
      */
@@ -267,56 +333,4 @@ var CLASS_NAMES = {
             element.dispatchEvent(new CustomEvent(eventName, { 'detail': {} }));
         }
     }
-
-    /**
-     * Initializes pagination bar.
-     * @param {Number} curPage number of displayed page
-     */
-    function loadPaginationBar(curPage) {
-        var fragment = document.createDocumentFragment(),
-            pageNmb,
-            displayedItemsNmb = (itemsNmbEl.value < ITEMS.length) ? itemsNmbEl.value : ITEMS.length,
-            paginationBtn,
-            className = '',
-            pageItemAtts, firstItemIndex, endItemIndex;
-        paginationEl.innerHTML = "";
-
-        for (pageNmb = 1; (pageNmb - 1) * displayedItemsNmb < ITEMS.length; pageNmb++) {
-            className = (pageNmb === curPage) ? (CLASS_NAMES.curPageBtn + ' ' + CLASS_NAMES.pageBtn) : CLASS_NAMES.pageBtn;
-            firstItemIndex = (pageNmb - 1) * displayedItemsNmb;
-            endItemIndex = pageNmb * displayedItemsNmb;
-            pageItemAtts = {
-                'className': className,
-                'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
-            };
-            paginationBtn = appendChild(fragment, 'li', pageItemAtts);
-            appendChild(paginationBtn, 'span', {'className': CLASS_NAMES.pageLink, 'innerText': pageNmb});
-            pageBtnHandler(paginationBtn);
-        }
-        paginationEl.appendChild(fragment);
-    }
-
-    /**
-     * Creates a listener for reset cart event and subscribes it to the event bus.
-     */
-    function handleResetCartButton() {
-        var id = 0,
-            eventName = 'onclick';
-        id = eventBus.subscribe(eventName, function () {
-            itemEls.forEach(function(element) {
-                getByClassName(element, CLASS_NAMES.itemAmount).value = 0;
-            });
-            totalBillEl.value = 0;
-        });
-        resetCartBtn[eventName] = function () {
-            eventBus.publish(eventName, id, {});
-        };
-    }
-
-    loadHeaders();
-    createItemElements();
-    loadItems(0, parseInt(itemsNmbEl.value));
-    createItemsAmountInputHandler();
-    loadPaginationBar(1);
-    handleResetCartButton();
 })();
