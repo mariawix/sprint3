@@ -1,70 +1,44 @@
 /**
- * Created by mariao on 6/30/15.
+ * Loads even manager into the app.
  */
-function PubSub() {
+var eventBus = (function () {
     /* {
-     *     name1: [cb11, cb12, ... ],
+     *     name1: cb1,
      *     ...
-     *     nameN: [cbN1, cbN2, ... ]
+     *     nameN: cbN
      * }
      */
     var events = {};
 
     /**
-     * Returns true if there exists an event with the given name and id, false - otherwise.
-     * @param {String} name event name
-     * @param {Number} id event id
-     * @returns {Boolean} true if there exists an event with the given name and id, false - otherwise.
-     */
-    function exists(name, id) {
-        return (events[name] && id < events[name].length) ? true : false;
-    }
-
-    /**
-     * Registers a new event and returns its id.
+     * Registers a new event.
      * @param {String} name event name
      * @param {Function} cb callback function of the event
-     * @returns {Number} id of the subscribed event
      */
-    this.subscribe = function (name, cb) {
-        if (!events.hasOwnProperty(name)) {
-            events[name] = [];
-        }
-        events[name].push(cb);
-        return events[name].length - 1;
+    function subscribe(name, cb) {
+        events[name] = cb;
 
     }
     /**
      * Removes event with specified name from the event bus.
      * @param {String} name event name
-     * @param {Number} id event id
-     * @returns {Boolean} true if succeeds, false - otherwise
      */
-    this.unsubscribe = function (name, id) {
-        if (!exists(name, id)) {
-            return false;
-        }
-        else {
-            events[name].slice(id, 1);
-            return true;
-        }
+    function unsubscribe(name) {
+        events[name] = undefined;
     }
 
     /**
      * Runs the event with specified name.
-     * Returns true if succeeds, false - otherwise.
      * @param {String} name event name
-     * @param {Number} id event id
      * @param {Object} data data to be passed to event handler
-     * @returns {Boolean} true if succeeds, false - otherwise
      */
-    this.publish = function(name, id, data) {
-        if (!exists(name, id)) {
-            return false;
-        }
-        else {
-            events[name][id](data);
-            return true;
-        }
+    function publish(name, data) {
+        events[name](data);
     }
-}
+
+    return {
+        publish: publish,
+        subscribe: subscribe,
+        unsubscribe: unsubscribe
+    }
+})();

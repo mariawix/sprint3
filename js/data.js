@@ -1,4 +1,7 @@
-var ITEMS = (function() {
+/**
+ * Shopping cart data: item objects and their headers (id, name etc.)
+ */
+var data = (function() {
     var items = [
             {   "id": 0,
                 "name": "Exoplode",
@@ -773,5 +776,10 @@ var ITEMS = (function() {
         type = Math.floor(Math.random() * compoundItemsCnstrs.length);
         compoundItems.push(new compoundItemsCnstrs[type](item['id'], item.name, item.description, item.image, item.price));
     }
-    return compoundItems;
+    return {
+        items: compoundItems,
+        itemsNmb: compoundItems.length,
+        headers: Object.keys(items[0]),
+        headersNmb: Object.keys(items[0]).length
+    };
 })();
