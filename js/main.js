@@ -8,7 +8,7 @@
     /*
      * Class names of dynamically created elements
      */
-    var CLASS_NAMES = {
+    var CNAMES = {
         ITEM_AMOUNT_CONTAINER: 'item-amount',
         ITEM_AMOUNT_INPUT: 'amount',
         ITEM_AMOUNT_ADD_BTN: 'add',
@@ -47,11 +47,11 @@
     function loadItemsTableHeaders() {
         var row, headFragment, itemAttNameIndex;
         row = document.createElement('div');
-        row.classList.add(CLASS_NAMES.TABLE_ROW);
+        row.classList.add(CNAMES.TABLE_ROW);
         for (itemAttNameIndex = 0; itemAttNameIndex < itemAttNames.length; itemAttNameIndex++) {
             row = appendItemsTableHeader(row, itemAttNames[itemAttNameIndex]);
         }
-        appendChild(row, 'div', {'innerText': 'cart', 'className': CLASS_NAMES.TABLE_HEADER_CELL});
+        appendChild(row, 'div', {'innerText': 'cart', 'className': CNAMES.TABLE_HEADER_CELL});
         itemsTableHeadElement.appendChild(row);
         headFragment = document.createDocumentFragment();
         headFragment.appendChild(itemsTableHeadElement);
@@ -63,21 +63,19 @@
      * Creates all the item elements including add and remove buttons.
      */
     function createItemElements() {
-        var itemAttIndex, itemIndex, row, cell, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs,
-            className = '', attName;
+        var itemAttIndex, itemIndex, row, cell, addHandlerID = -1, removeHandlerID = -1, cartBtnsIDs, className = '';
         for (itemIndex = 0; itemIndex < ITEMS.length; itemIndex++) {
             row = document.createElement('div');
-            row.classList.add(CLASS_NAMES.TABLE_ROW);
+            row.classList.add(CNAMES.TABLE_ROW);
             row.dataset.index = itemIndex;
             for (itemAttIndex = 0; itemAttIndex < itemAttNames.length; itemAttIndex++) {
-                attName = itemAttNames[itemAttIndex];
-                className =  attName + ' ' + CLASS_NAMES.TABLE_BODY_CELL;
+                className = itemAttNames[itemAttIndex] + ' ' + CNAMES.TABLE_BODY_CELL;
                 cell = appendChild(row, 'div', {'className': className});
-                if (attName === 'image') {
-                    appendChild(cell, 'img', {'src': ITEMS[itemIndex][attName], 'alt': 'image'});
+                if (itemAttNames[itemAttIndex] === 'image') {
+                    appendChild(cell, 'img', {'src': ITEMS[itemIndex][itemAttNames[itemAttIndex]], 'alt': 'image'});
                 }
                 else {
-                    cell.innerText = ITEMS[itemIndex][attName];
+                    cell.innerText = ITEMS[itemIndex][itemAttNames[itemAttIndex]];
                 }
             }
             cartBtnsIDs = createAddRemoveBtns(row, addHandlerID, removeHandlerID);
@@ -109,7 +107,7 @@
     function handleItemsPerPageElement() {
         var eventName = 'onchange', callbackID, firstIndex, newCurPage, topRowIndex;
         callbackID = eventBus.subscribe(eventName, function (itemsAmount) {
-            topRowIndex = parseInt(getByClassName(itemsTableBodyElement, CLASS_NAMES.TABLE_ROW + ':first-child').dataset.index);
+            topRowIndex = parseInt(getByClassName(itemsTableBodyElement, CNAMES.TABLE_ROW + ':first-child').dataset.index);
             newCurPage = Math.floor(topRowIndex / itemsAmount) + 1;
             firstIndex = (newCurPage - 1) * itemsAmount;
             loadItems(firstIndex, firstIndex + itemsAmount);
@@ -125,27 +123,17 @@
      * @param {Number} curPage number of displayed page
      */
     function loadPaginationBar(curPage) {
-        var paginFragment = document.createDocumentFragment(),
+        var pagingFragment = document.createDocumentFragment(),
             pageNmb,
-            displayedItemsNmb = (itemsPerPageElement.value < ITEMS.length) ? itemsPerPageElement.value : ITEMS.length,
-            paginationBtn,
-            className = '',
-            pageItemAtts, firstItemIndex, endItemIndex;
+            itemsPerPageNmb = (itemsPerPageElement.value < ITEMS.length) ? itemsPerPageElement.value : ITEMS.length,
+            btn;
         paginationElement.innerHTML = "";
-
-        for (pageNmb = 1; (pageNmb - 1) * displayedItemsNmb < ITEMS.length; pageNmb++) {
-            className = (pageNmb === curPage) ? (CLASS_NAMES.CUR_PAGE_BTN + ' ' + CLASS_NAMES.PAGE_BTN) : CLASS_NAMES.PAGE_BTN;
-            firstItemIndex = (pageNmb - 1) * displayedItemsNmb;
-            endItemIndex = pageNmb * displayedItemsNmb;
-            pageItemAtts = {
-                'className': className,
-                'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
-            };
-            paginationBtn = appendChild(paginFragment, 'li', pageItemAtts);
-            appendChild(paginationBtn, 'span', {'className': CLASS_NAMES.PAGE_LINK, 'innerText': pageNmb});
-            pageBtnHandler(paginationBtn);
+        for (pageNmb = 1; (pageNmb - 1) * itemsPerPageNmb < ITEMS.length; pageNmb++) {
+            btn = createPaginationBtnElement(pageNmb == curPage, pageNmb, itemsPerPageNmb);
+            pagingFragment.appendChild(btn);
+            pageBtnHandler(btn);
         }
-        paginationElement.appendChild(paginFragment);
+        paginationElement.appendChild(pagingFragment);
     }
 
     /**
@@ -156,7 +144,7 @@
             eventName = 'onclick';
         callbackID = eventBus.subscribe(eventName, function () {
             itemElements.forEach(function(itemElement) {
-                getByClassName(itemElement, CLASS_NAMES.ITEM_AMOUNT_INPUT).value = 0;
+                getByClassName(itemElement, CNAMES.ITEM_AMOUNT_INPUT).value = 0;
             });
             totalBillElement.value = 0;
         });
@@ -203,14 +191,15 @@
      */
     function sortBtn(key, asc) {
         var sortBtn, btnAtts, eventName = 'onclick', callbackID;
-        btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': CLASS_NAMES.SORT_ASC_BTN}
-                        : {'innerHTML': '&darr;', 'className': CLASS_NAMES.SORT_DESC_BTN};
+        btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': CNAMES.SORT_ASC_BTN}
+                        : {'innerHTML': '&darr;', 'className': CNAMES.SORT_DESC_BTN};
         sortBtn = createCustomElement('span', btnAtts);
         callbackID = eventBus.subscribe(eventName, function() {
             itemElements.sort(function(item1, item2) {
                 var el1val = getItemElementValue(item1, key),
                     el2val = getItemElementValue(item2, key),
-                    res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
+                    res;
+                res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
                 return (asc) ? res : -res;
             });
             reindexItemsElements();
@@ -252,22 +241,22 @@
      * @param {Element} parentElement a reference to the element containing the button
      * @param {Object} btnAtts object defining attributes of the button
      * @param {Number} itemAmountElement amount of the item added to the cart
-     * @param {Number} price price of the added item
-     * @param {Number} cbID id of the callback function handling the event, if -1 then the callback will be created
-     * @param {Function} cb the callback function handling the event
+     * @param {Number} itemPrice price of the added item
+     * @param {Number} handlerID id of the callback function handling the event, if -1 then the callback will be created
+     * @param {Function} handler the callback function handling the event
      * @returns {Number} id of the callback function handling the event
      */
-    function initItemBtn(parentElement, btnAtts, itemAmountElement, price, cbID, cb) {
+    function initItemBtn(parentElement, btnAtts, itemAmountElement, itemPrice, handlerID, handler) {
         var eventName = 'onclick',
             btn = appendChild(parentElement, 'button', btnAtts);
-        if (cbID === -1) {
-            cbID = eventBus.subscribe(eventName, cb);
+        if (handlerID === -1) {
+            handlerID = eventBus.subscribe(eventName, handler);
         }
         btn[eventName] = function() {
-            var data = {'amount': itemAmountElement, 'price': price};
-            eventBus.publish(eventName, cbID, data);
+            var data = {'amount': itemAmountElement, 'price': itemPrice};
+            eventBus.publish(eventName, handlerID, data);
         }
-        return cbID;
+        return handlerID;
     }
 
 
@@ -304,17 +293,17 @@
      */
     function createAddRemoveBtns(tr, addCbID, removeCbID) {
         var container, itemAmount, btn, price, btnAtts;
-        price = parseInt(getByClassName(tr, CLASS_NAMES.ITEM_PRICE_CELL).innerText);
-        container = appendChild(tr, 'div', {'className': CLASS_NAMES.TABLE_BODY_CELL});
+        price = parseInt(getByClassName(tr, CNAMES.ITEM_PRICE_CELL).innerText);
+        container = appendChild(tr, 'div', {'className': CNAMES.TABLE_BODY_CELL});
 
-        container = appendChild(container, 'span', {'className': CLASS_NAMES.ITEM_AMOUNT_CONTAINER});
+        container = appendChild(container, 'span', {'className': CNAMES.ITEM_AMOUNT_CONTAINER});
 
-        itemAmount = appendChild(container, 'input', {'className': CLASS_NAMES.ITEM_AMOUNT_INPUT, 'value': '0', 'disabled': 'true'});
+        itemAmount = appendChild(container, 'input', {'className': CNAMES.ITEM_AMOUNT_INPUT, 'value': '0', 'disabled': 'true'});
 
-        btnAtts = {'className': CLASS_NAMES.ITEM_AMOUNT_ADD_BTN, 'innerText': 'Add'};
+        btnAtts = {'className': CNAMES.ITEM_AMOUNT_ADD_BTN, 'innerText': 'Add'};
         addCbID = initItemBtn(container, btnAtts, itemAmount, price, addCbID, addToCartHandler);
 
-        btnAtts = {'className': CLASS_NAMES.ITEM_AMOUNT_REMOVE_BTN, 'innerText': 'Remove'};
+        btnAtts = {'className': CNAMES.ITEM_AMOUNT_REMOVE_BTN, 'innerText': 'Remove'};
         removeCbID = initItemBtn(container, btnAtts, itemAmount, price, removeCbID, removeFromCartHandler);
 
         return {'addHandlerID': addCbID, 'removeHandlerID': removeCbID};
@@ -329,9 +318,9 @@
             eventName = 'myevent';
         cbID = eventBus.subscribe(eventName, function (e) {
             var data = JSON.parse(e.dataset.paging);
-            getByClassName(paginationElement, CLASS_NAMES.CUR_PAGE_BTN).classList.remove(CLASS_NAMES.CUR_PAGE_BTN);
+            getByClassName(paginationElement, CNAMES.CUR_PAGE_BTN).classList.remove(CNAMES.CUR_PAGE_BTN);
             loadItems(data.start, data.end);
-            e.classList.add(CLASS_NAMES.CUR_PAGE_BTN);
+            e.classList.add(CNAMES.CUR_PAGE_BTN);
         });
         pageBtnElement.addEventListener(eventName, function (e) {
             eventBus.publish(eventName, cbID, this);
@@ -349,13 +338,27 @@
      */
     function appendItemsTableHeader(row, headerName) {
         var header,
-            atts =  {
+            headerAttributes =  {
             'innerText': headerName,
-            'className': CLASS_NAMES.TABLE_HEADER_CELL + ' ' + headerName
+            'className': CNAMES.TABLE_HEADER_CELL + ' ' + headerName
             };
-        header = appendChild(row, 'div', atts);
+        header = appendChild(row, 'div', headerAttributes);
         header.appendChild(sortBtn(headerName, true));
         header.appendChild(sortBtn(headerName, false));
         return row;
+    }
+
+    function createPaginationBtnElement(isCurPage, pageNmb, itemsPerPageNmb) {
+        var firstItemIndex = (pageNmb - 1) * itemsPerPageNmb,
+            endItemIndex = pageNmb * itemsPerPageNmb,
+            pageItemAtts, className, btn;
+        className = (isCurPage) ? (CNAMES.CUR_PAGE_BTN + ' ' + CNAMES.PAGE_BTN) : CNAMES.PAGE_BTN;
+        pageItemAtts = {
+            'className': className,
+            'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
+        };
+        btn = createCustomElement('li', pageItemAtts);
+        appendChild(btn, 'span', {'className': CNAMES.PAGE_LINK, 'innerText': pageNmb});
+        return btn;
     }
 })();
