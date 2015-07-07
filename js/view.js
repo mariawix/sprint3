@@ -124,20 +124,20 @@ var view = (function() {
         btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': SORT_ASC_BTN}
                         : {'innerHTML': '&darr;', 'className': SORT_DESC_BTN};
         sortBtn = helpers.createCustomElement('span', btnAtts);
-        eventBus.subscribe(eventName, function() {
+        eventBus.subscribe(eventName, function(data) {
             itemElements.sort(function(item1, item2) {
-                var el1val = getItemElementValue(item1, key),
-                    el2val = getItemElementValue(item2, key),
+                var el1val = getItemElementValue(item1, data.key),
+                    el2val = getItemElementValue(item2, data.key),
                     res;
                 res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
-                return (asc) ? res : -res;
+                return (data.asc) ? res : -res;
             });
             reindexItemsElements();
             loadItems(0, parseInt(elements.itemsPerPage.value));
             eventBus.publish(events.itemsPerPageChanged, elements.itemsPerPage.value);
         });
         sortBtn.onclick = function() {
-            eventBus.publish(eventName, key);
+            eventBus.publish(eventName, {key: key, asc: asc});
         };
         return sortBtn;
     }
@@ -217,7 +217,7 @@ var view = (function() {
      */
     function getItemElementValue(itemElement, className) {
         var val = helpers.getByClassName(itemElement, className).innerText;
-        return (className === 'id' || className === 'price') ? parseInt(val) : val;
+        return (className === 'id' || className === 'price') ? parseInt(val, 10) : val;
     }
 
     return {
