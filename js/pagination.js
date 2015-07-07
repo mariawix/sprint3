@@ -3,63 +3,73 @@
  */
 
 /**
- * Loads pagination bar into the app.
+ * Loads pagination module into the app.
  */
-
 (function (app) {
-    /*
-     * Pagination bar class names
-     */
-    var PAGE_BTN = 'page-btn',
-        CUR_PAGE_BTN = 'current-page-btn',
-        PAGE_LINK = 'page-link',
+
+    var pageBtnClass = 'page-btn',
+        curPageBtnClass = 'current-page-btn',
+        pageLinkClass = 'page-link',
 
         pagesNav = document.querySelector('.pages-nav'),
         itemsPerPage = document.querySelector('.items-per-page-input');
 
     /**
-     * Creates items per page change event listener and subscribes it to the event bus.
+     * Creates paging size change event listener and subscribes it to the event bus.
+     * @param {Number} itemsNmb total number of items
+     * @param {Object} app event manager
      */
     function handleItemsPerPageElement(itemsNmb, eventBus) {
         itemsPerPage.onchange = function () {
-            eventBus.publish(events.itemsPerPageChanged, getPagingSize());
+            eventBus.publish(events.pagingSizeChanged, getPagingSize());
             loadPaginationBar(getCurPageNmb(), itemsNmb, eventBus);
         }
     }
 
     /**
-     * Creates page button click callback and subscribes it to event bus.
+     * Creates page button click callback and subscribes it to the event bus.
      * @param {Element} pageBtnElement button element
+     * @param {Object} app event manager
      */
     function pageBtnHandler(pageBtnElement, eventBus) {
         pageBtnElement.onclick = function () {
-            var data = JSON.parse(pageBtnElement.dataset.paging),
-                clickedPageNmb = parseInt(helpers.getByClassName(pageBtnElement, PAGE_LINK).innerText, 10);
+            var data = JSON.parse(pageBtnElement.dataset.paging), clickedPage, clickedPageNmb;
+            clickedPage = helpers.getByClassName(pageBtnElement, pageLinkClass);
+            clickedPageNmb = parseInt(clickedPage.innerText, 10);
             eventBus.publish(events.pageBtnClicked, {start: data.start, end: data.end});
             eventBus.publish(events.curPageChanged, clickedPageNmb);
         }
     }
 
-    function createPaginationBtnElement(curPage, pageNmb, itemsPerPageNmb) {
-        var firstItemIndex = (pageNmb - 1) * itemsPerPageNmb,
-            endItemIndex = pageNmb * itemsPerPageNmb,
+    /**
+     * Creates pagination button.
+     * @param {Number} curPage number of displayed page
+     * @param {Number} pageNmb number of button to create
+     * @param {Number} pagingSize number of items displayed on a single page
+     * @returns {Element} created button
+     */
+    function createPaginationBtnElement(curPage, pageNmb, pagingSize) {
+        var firstItemIndex = (pageNmb - 1) * pagingSize,
+            endItemIndex = pageNmb * pagingSize,
             pageItemAtts, className, btn;
-        className = PAGE_BTN;
+        className = pageBtnClass;
         if (curPage) {
-            className += ' ' + CUR_PAGE_BTN;
+            className += ' ' + curPageBtnClass;
         }
         pageItemAtts = {
             'className': className,
             'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
         };
         btn = helpers.createCustomElement('li', pageItemAtts);
-        helpers.appendChild(btn, 'span', {'className': PAGE_LINK, 'innerText': pageNmb});
+        helpers.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageNmb});
         return btn;
     }
 
     /**
      * Loads pagination bar.
      * @param {Number} curPage number of displayed page
+     * @param {Number} itemsNmb total number of items
+     * @param {Object} app event manager
      */
     function loadPaginationBar(curPage, itemsNmb, eventBus) {
         var pageNmb, btn,
@@ -75,26 +85,39 @@
         pagesNav.appendChild(pagingFragment);
     }
 
+    /**
+     * Returns number of the currently displayed page.
+     * @returns {Number} number of the current page
+     */
     function getCurPageNmb() {
         var curPageBtn, curPageLink, curPageNmb;
-        curPageBtn = helpers.getByClassName(pagesNav, CUR_PAGE_BTN);
-        curPageLink = helpers.getByClassName(curPageBtn, PAGE_LINK);
+        curPageBtn = helpers.getByClassName(pagesNav, curPageBtnClass);
+        curPageLink = helpers.getByClassName(curPageBtn, pageLinkClass);
         curPageNmb = parseInt(curPageLink.innerText, 10);
         return isNaN(curPageNmb) ? 1 : curPageNmb;
     }
 
+    /**
+     * Returns number of items displayed on a single page.
+     * @returns {Number} number of items displayed on a single page.
+     */
     function getPagingSize() {
         return parseInt(itemsPerPage.value, 10);
     }
 
+    /**
+     * Initializes pagination module.
+     * @param {Number} itemsNmb overall number of the items
+     * @param {Object} eventBus app event manager
+     */
     function init(itemsNmb, eventBus) {
         eventBus.subscribe(events.curPageChanged, function (curPageNmb) {
-            helpers.getByClassName(pagesNav, CUR_PAGE_BTN).classList.remove(CUR_PAGE_BTN);
-            helpers.getByClassName(pagesNav, PAGE_BTN + ':nth-child(' + curPageNmb + ')').classList.add(CUR_PAGE_BTN);
+            helpers.getByClassName(pagesNav, curPageBtnClass).classList.remove(curPageBtnClass);
+            helpers.getByClassName(pagesNav, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
         });
 
-        eventBus.subscribe(events.refreshPaging, function() {
-            eventBus.publish(events.refreshView, getPagingSize());
+        eventBus.subscribe(events.refreshPagingEvent, function() {
+            eventBus.publish(events.refreshViewEvent, getPagingSize());
         });
 
         loadPaginationBar(1, itemsNmb, eventBus);

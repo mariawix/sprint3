@@ -6,18 +6,18 @@
  * Loads view module into the app
  */
 (function(app) {
-    var SORT_ASC_BTN = 'sort-asc-btn',
-        SORT_DESC_BTN = 'sort-desc-btn',
-        TABLE_BODY_CELL = 'td',
-        TABLE_HEADER_CELL = 'th',
-        ITEM_ROW = 'tr',
+    var sortAscBtnClass = 'sort-asc-btn',
+        sortDescBtnClass = 'sort-desc-btn',
+        tableBodyCellClass = 'td',
+        tableHeaderCellClass = 'th',
+        tableRowClass = 'tr',
 
         itemsTable = document.querySelector('.items-table'),
         itemsTableHead = document.querySelector('.items-table .thead'),
         itemsTableBody = document.querySelector('.items-table .tbody'),
 
         itemElements = [],
-        headers = [];          // array of visible item attributes
+        itemKeys = [];
 
     /**
      * Creates item row elements, initializes the table and subscribes event handlers to event bus.
@@ -25,49 +25,39 @@
      * @param {Object} eventBus events manager
      */
     function init(items, eventBus) {
-        headers = Object.keys(items[0]);
-        createItemElements(items, eventBus);
+        itemKeys = Object.keys(items[0]);
+        createItemRowElements(items, eventBus);
         loadTableHead(eventBus);
         createEventHandlers(eventBus);
     }
 
 
     /**
-     * Creates all item elements.
+     * Creates all item row elements.
      * @param {Array} items array of items
      * @param {Object} eventBus events manager
      */
-    function createItemElements(items, eventBus) {
-        var i, row, cartBtnsCell, cartBtnsHelpers = cartButtons();
+    function createItemRowElements(items, eventBus) {
+        var i, itemRowElement, cartBtnsCell, cartBtnsHelpers = cartButtons();
         for (i = 0; i < items.length; i++) {
-            row = helpers.createCustomElement('div', {'className': ITEM_ROW, 'dataset': {'index': i}});
-            headers.forEach(function(header) {
-                var className = header + ' ' + TABLE_BODY_CELL,
-                    cell = helpers.appendChild(row, 'div', {'className': className});
-                if (header === 'image') {
-                    helpers.appendChild(cell, 'img', {'src': items[i][header], 'alt': 'image'});
-                }
-                else {
-                    cell.innerText = items[i][header];
-                }
-            });
-            cartBtnsCell = helpers.appendChild(row, 'div', {'className': TABLE_BODY_CELL});
+            itemRowElement = createItemRowElement(items[i], i);
+            cartBtnsCell = helpers.appendChild(itemRowElement, 'div', {'className': tableBodyCellClass});
             cartBtnsHelpers.appendCartBtns(cartBtnsCell, items[i], eventBus);
-            itemElements.push(row);
+            itemElements.push(itemRowElement);
         }
     }
 
     /**
      * Loads header cells to the head of the table.
-     * @param {Object} eventBus events manager
+     * @param {Object} eventBus app event manager
      */
     function loadTableHead(eventBus) {
         var row, headFragment;
-        row = helpers.createCustomElement('div', {'className': ITEM_ROW});
-        headers.forEach(function(header) {
+        row = helpers.createCustomElement('div', {'className': tableRowClass});
+        itemKeys.forEach(function(header) {
             appendHeaderCell(row, header, eventBus);
         });
-        helpers.appendChild(row, 'div', {'innerText': 'cart', 'className': TABLE_HEADER_CELL});
+        helpers.appendChild(row, 'div', {'innerText': 'cart', 'className': tableHeaderCellClass});
         itemsTableHead.appendChild(row);
         headFragment = document.createDocumentFragment();
         headFragment.appendChild(itemsTableHead);
@@ -91,25 +81,25 @@
     }
 
     /**
-     *
-     * @param {Object} eventBus events manager
+     * Initializes all view related event listeners.
+     * @param {Object} eventBus app events manager
      */
     function createEventHandlers(eventBus) {
         eventBus.subscribe(events.pageBtnClicked, function (data) {
             loadItems(data.start, data.end);
         });
 
-        eventBus.subscribe(events.itemsPerPageChanged, function (itemsAmount) {
+        eventBus.subscribe(events.pagingSizeChanged, function (pagindSize) {
             var firstIndex, newCurPage, topRow, topRowIndex;
-            topRow = helpers.getByClassName(itemsTableBody, ITEM_ROW + ':first-child');
+            topRow = helpers.getByClassName(itemsTableBody, tableRowClass + ':first-child');
             topRowIndex = parseInt(topRow.dataset.index, 10);
-            newCurPage = Math.floor(topRowIndex / itemsAmount) + 1;
-            firstIndex = (newCurPage - 1) * itemsAmount;
-            loadItems(firstIndex, firstIndex + itemsAmount);
+            newCurPage = Math.floor(topRowIndex / pagindSize) + 1;
+            firstIndex = (newCurPage - 1) * pagindSize;
+            loadItems(firstIndex, firstIndex + pagindSize);
             eventBus.publish(events.curPageChanged, newCurPage);
         });
 
-        eventBus.subscribe(events.refreshView, function(itemsAmount) {
+        eventBus.subscribe(events.refreshViewEvent, function(itemsAmount) {
             loadItems(0, itemsAmount);
         });
     }
@@ -128,11 +118,32 @@
         var header,
             headerAttributes =  {
                 'innerText': headerName,
-                'className': TABLE_HEADER_CELL + ' ' + headerName
+                'className': tableHeaderCellClass + ' ' + headerName
             };
         header = helpers.appendChild(row, 'div', headerAttributes);
         header.appendChild(sortBtn(headerName, true, eventBus));
         header.appendChild(sortBtn(headerName, false, eventBus));
+    }
+
+    /**
+     * Converts given item data object into an item row element.
+     * @param {Obect} item item data
+     * @param {Number} index index of the item
+     * @returns {Element} the newly created element
+     */
+    function createItemRowElement(item, index) {
+        var itemRowElement = helpers.createCustomElement('div', {'className': tableRowClass, 'dataset': {'index': index}});
+        itemKeys.forEach(function(key) {
+            var className = key + ' ' + tableBodyCellClass,
+                cell = helpers.appendChild(itemRowElement, 'div', {'className': className});
+            if (key === 'image') {
+                helpers.appendChild(cell, 'img', {'src': item[key], 'alt': 'image'});
+            }
+            else {
+                cell.innerText = item[key];
+            }
+        });
+        return itemRowElement;
     }
 
     /**
@@ -157,9 +168,9 @@
     function sortBtn(key, asc, eventBus) {
         var sortBtn, btnAtts, eventName;
 
-        eventName = (asc) ? events.sortAsc : events.sortDesc;
-        btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': SORT_ASC_BTN}
-                        : {'innerHTML': '&darr;', 'className': SORT_DESC_BTN};
+        eventName = (asc) ? events.sortAscBtnClicked : events.sortDescBtnClicked;
+        btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
+                        : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
         sortBtn = helpers.createCustomElement('span', btnAtts);
         eventBus.subscribe(eventName, function(data) {
             itemElements.sort(function(item1, item2) {
@@ -170,7 +181,7 @@
                 return (data.asc) ? res : -res;
             });
             reindexItemsElements();
-            eventBus.publish(events.refreshPaging, {});
+            eventBus.publish(events.refreshPagingEvent, {});
         });
         sortBtn.onclick = function() {
             eventBus.publish(eventName, {key: key, asc: asc});

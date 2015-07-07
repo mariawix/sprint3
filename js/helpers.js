@@ -3,7 +3,7 @@
  */
 
 /**
- * Returns help functions.
+ * Creates help functions.
  */
 var helpers = (function() {
     /**
@@ -27,15 +27,15 @@ var helpers = (function() {
      * @returns {Element} created element
      */
     function createCustomElement(tagName, attributes) {
-        var element = document.createElement(tagName), attributeName, subAttributeName;
-        for (attributeName in attributes) {
-            if ((typeof attributes[attributeName]) === 'object') {
-                for (subAttributeName in attributes[attributeName]) {
-                    element[attributeName][subAttributeName] = attributes[attributeName][subAttributeName];
+        var element = document.createElement(tagName), attKey, objKey;
+        for (attKey in attributes) {
+            if ((typeof attributes[attKey]) === 'object') {
+                for (objKey in attributes[attKey]) {
+                    element[attKey][objKey] = attributes[attKey][objKey];
                 }
             }
             else {
-                element[attributeName] = attributes[attributeName];
+                element[attKey] = attributes[attKey];
             }
         }
         return element;

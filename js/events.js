@@ -4,21 +4,21 @@
 
 var events = (function() {
     return {
-        itemsPerPageChanged: 'itemsPerPageChanged',
+        pagingSizeChanged: 'itemsPerPageChanged',
         pageBtnClicked: 'pageBtnClicked',
 
         addItemBtnClicked: 'addItemBtnPressed',
         removeItemBtnClicked: 'removeItemBtnPressed',
-        resetItemAmount: 'resetItemAmount',
+        resetItemAmountEvent: 'resetItemAmount',
 
         curPageChanged: 'curPageChanged',
-        resetCart: 'resetCart',
-        sortAsc: 'sortAsc',
-        sortDesc: 'sortDesc',
-        addItemToCart: 'addItemToCart',
-        removeItemFromCart: 'removeItemFromCart',
+        resetCartBtnClicked: 'resetCart',
+        sortAscBtnClicked: 'sortAsc',
+        sortDescBtnClicked: 'sortDesc',
+        addItemToCartEvent: 'addItemToCart',
+        removeItemFromCartEvent: 'removeItemFromCart',
 
-        refreshPaging: 'refreshPaging',
-        refreshView: 'refreshView'
+        refreshPagingEvent: 'refreshPaging',
+        refreshViewEvent: 'refreshView'
     }
 })();

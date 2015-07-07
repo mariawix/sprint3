@@ -2,54 +2,92 @@
  * Created by mariao on 7/6/15.
  */
 
+/*
+ * Loads cart module into the app.
+ */
 (function(app) {
-    var totalBill = document.querySelector('.total-bill'),
-        resetCart = document.querySelector('.reset-cart-btn'),
+    var ITEM_NOT_FOUND = -1,
 
-        items = [];
+        totalBill = document.querySelector('.total-bill'),
+        resetCartBtn = document.querySelector('.reset-cart-btn'),
 
+        addedItems = [];
+
+    /**
+     * Returns total bill value.
+     * @returns {Number} total bill.
+     */
     function getTotalBillValue() {
         return parseInt(totalBill.value, 10);
     }
 
-    function init(eventBus) {
+    /**
+     * Returns index of the item in the cart by item ID.
+     * @param {Number} id item id to search
+     * @returns {Number} item index in the cart
+     */
+    function getItemIndexByID(id) {
+        var i;
+        for (i = 0; i < addedItems.length; i++) {
+            if (addedItems[i].id === id) {
+                return i;
+            }
+        }
+        return ITEM_NOT_FOUND;
+    }
 
-        resetCart.onclick = function () {
-            items.forEach(function(item) {
-                eventBus.publish(events.resetItemAmount + item.id, {});
+    /**
+     * Adds a new item into the cart.
+     * @param {Object} data object containing item to add.
+     */
+    function addItemToCart(data) {
+        var item = data.item, itemIndex, itemClone;
+        itemIndex = getItemIndexByID(item.id);
+        if (itemIndex !== ITEM_NOT_FOUND) {
+            addedItems[itemIndex].amount++;
+            totalBill.value = getTotalBillValue() + item.price;
+        }
+        else {
+            itemClone = JSON.parse(JSON.stringify(item));
+            itemClone.amount = 1;
+            addedItems.push(itemClone);
+            totalBill.value = getTotalBillValue() + itemClone.price;
+        }
+    }
+
+    /**
+     * Removes an item from the cart.
+     * @param {Object} data object containing item to remove.
+     */
+    function removeItemFromCart(data) {
+        var item = data.item, itemIndex;
+        itemIndex = getItemIndexByID(item.id);
+        if (itemIndex == ITEM_NOT_FOUND) {
+            console.log('attempt to remove from cart nonexistent item');
+            return;
+        }
+        if (addedItems[itemIndex].amount && addedItems[itemIndex].amount > 0) {
+            addedItems[itemIndex].amount = addedItems[itemIndex].amount - 1;
+            totalBill.value = getTotalBillValue() - item.price;
+        }
+    }
+
+    /**
+     * Initializes the cart and all its event listeners.
+     * @param {Object} eventBus app event manager
+     */
+    function init(eventBus) {
+        resetCartBtn.onclick = function () {
+            addedItems.forEach(function(item) {
+                eventBus.publish(events.resetItemAmountEvent + item.id, {});
             });
-            items = [];
+            addedItems = [];
             totalBill.value = 0;
         };
 
-        eventBus.subscribe(events.addItemToCart, function(data) {
-            var i, found = false;
-            for (i = 0; i < items.length && !found; i++) {
-                if (items[i].id === data.item.id) {
-                    items[i].amount = (items[i].amount) ? 1 + items[i].amount : 1;
-                    totalBill.value = getTotalBillValue() + data.item.price;
-                    found = true;
-                }
-            }
-            if (!found) {
-                data.item.amount = 1;// TODO: copy it
-                items.push(data.item);
-                totalBill.value = getTotalBillValue() + data.item.price;
-            }
-        });
+        eventBus.subscribe(events.addItemToCartEvent, addItemToCart);
 
-        eventBus.subscribe(events.removeItemFromCart, function(data) {
-            var i;
-            for (i = 0; i < items.length; i++) {
-                if (items[i].id === data.item.id) {
-                    if (items[i].amount && items[i].amount > 0) {
-                        items[i].amount = items[i].amount - 1;
-                        totalBill.value = getTotalBillValue() - data.item.price;
-                        i = items.length; // break
-                    }
-                }
-            }
-        });
+        eventBus.subscribe(events.removeItemFromCartEvent, removeItemFromCart);
     }
 
     app.cart = {

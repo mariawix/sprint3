@@ -1,5 +1,5 @@
 /**
- * Loads even manager into the app.
+ * TODO: change design? load to app?
  */
 function PubSub() {
     /* {

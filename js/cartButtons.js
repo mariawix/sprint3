@@ -3,26 +3,38 @@
  */
 function cartButtons() {
 
-    var ITEM_AMOUNT_CONTAINER = 'item-amount',
-        ITEM_AMOUNT_INPUT = 'amount',
-        ITEM_AMOUNT_ADD_BTN = 'add',
-        ITEM_AMOUNT_REMOVE_BTN = 'remove';
+    var cartBtnsContainerClass = 'item-amount',
+        itemAmountInputClass = 'amount',
+        addToCartBtnClass = 'add',
+        removeFromCartBtnClass = 'remove';
 
+    /**
+     * Creates add to cart button
+     * @param {Object} eventBus app event manager
+     * @param {Object} data data object passed to event handlers: item and its amount
+     * @returns {Element} add to cart button
+     */
     function createAddBtn(eventBus, data) {
-        var btn, btnAtts = {'className': ITEM_AMOUNT_ADD_BTN, 'innerText': 'Add'};
+        var btn, btnAtts = {'className': addToCartBtnClass, 'innerText': 'Add'};
         btn = helpers.createCustomElement('button', btnAtts);
         eventBus.subscribe(events.addItemBtnClicked, function(data) {
             data.amount.value = parseInt(data.amount.value) + 1;
         });
         btn.onclick = function() {
             eventBus.publish(events.addItemBtnClicked, data);
-            eventBus.publish(events.addItemToCart, data);
+            eventBus.publish(events.addItemToCartEvent, data);
         };
         return btn;
     }
 
+    /*
+     * Creates remove from cart button
+     * @param {Object} eventBus app event manager
+     * @param {Object} data data object passed to event handlers: item and its amount
+     * @returns {Element} remove cart button
+     */
     function createRemoveBtn(eventBus, data) {
-        var btn, btnAtts = {'className': ITEM_AMOUNT_REMOVE_BTN, 'innerText': 'Remove'};
+        var btn, btnAtts = {'className': removeFromCartBtnClass, 'innerText': 'Remove'};
         btn = helpers.createCustomElement('button', btnAtts);
         eventBus.subscribe(events.removeItemBtnClicked, function(data) {
             var itemAmount = parseInt(data.amount.value);
@@ -32,30 +44,32 @@ function cartButtons() {
         });
         btn.onclick = function() {
             eventBus.publish(events.removeItemBtnClicked, data);
-            eventBus.publish(events.removeItemFromCart, data);
+            eventBus.publish(events.removeItemFromCartEvent, data);
         };
         return btn;
     }
 
+    /*
+     * TODO: handle input
+     */
     function createItemAmountElement(eventBus, id) {
-        var itemAmount, atts = {'className': ITEM_AMOUNT_INPUT, 'value': '0', 'disabled': 'true'};
+        var itemAmount, atts = {'className': itemAmountInputClass, 'value': '0', 'disabled': 'true'};
         itemAmount = helpers.createCustomElement('input', atts);
-        eventBus.subscribe(events.resetItemAmount + id, function() {
+        eventBus.subscribe(events.resetItemAmountEvent + id, function() {
             itemAmount.value = 0;
         });
         return itemAmount;
     }
 
-
     /**
      * Appends cart buttons to the specified element.
      * @param {Element} parentElement a reference to a element to append buttons to
-     * @param {Object} eventBus
-     * @param {Number} itemPrice
+     * @param {Object} item item object corresponding to created buttons
+     * @param {Object} eventBus app event manager
      */
     function appendCartBtns(parentElement, item, eventBus) {
         var itemAmount, container, data;
-        container = helpers.appendChild(parentElement, 'span', {'className': ITEM_AMOUNT_CONTAINER});
+        container = helpers.appendChild(parentElement, 'span', {'className': cartBtnsContainerClass});
         itemAmount = createItemAmountElement(eventBus, item.id);
         container.appendChild(itemAmount);
         data = {'amount': itemAmount, 'item': item};
