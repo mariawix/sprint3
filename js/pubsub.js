@@ -2,6 +2,20 @@
  * TODO: change design? load to app?
  */
 function PubSub() {
+    this.pagingSizeChanged = 'itemsPerPageChanged';
+    this.pageBtnClicked = 'pageBtnClicked';
+    this.addItemBtnClicked = 'addItemBtnPressed';
+    this.removeItemBtnClicked = 'removeItemBtnPressed';
+    this.resetItemAmountEvent = 'resetItemAmount';
+    this.curPageChanged = 'curPageChanged';
+    this.resetCartBtnClicked = 'resetCart';
+    this.sortAscBtnClicked = 'sortAsc';
+    this.sortDescBtnClicked = 'sortDesc';
+    this.addItemToCartEvent = 'addItemToCart';
+    this.removeItemFromCartEvent = 'removeItemFromCart';
+    this.refreshPagingEvent = 'refreshPaging';
+    this.refreshViewEvent = 'refreshView';
+
     /* {
      *     name1: cb1,
      *     ...
@@ -15,7 +29,7 @@ function PubSub() {
      * @param {String} name event name
      * @param {Function} cb callback function of the event
      */
-    function subscribe(name, cb) {
+    this.subscribe = function(name, cb) {
         events[name] = cb;
 
     }
@@ -23,7 +37,7 @@ function PubSub() {
      * Removes event with specified name from the event bus.
      * @param {String} name event name
      */
-    function unsubscribe(name) {
+    this.unsubscribe = function(name) {
         events[name] = undefined;
     }
 
@@ -32,13 +46,7 @@ function PubSub() {
      * @param {String} name event name
      * @param {Object} data data to be passed to event handler
      */
-    function publish(name, data) {
+    this.publish = function(name, data) {
         events[name](data);
-    }
-
-    return {
-        publish: publish,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe
     }
 }

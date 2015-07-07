@@ -17,12 +17,12 @@ function cartButtons() {
     function createAddBtn(eventBus, data) {
         var btn, btnAtts = {'className': addToCartBtnClass, 'innerText': 'Add'};
         btn = helpers.createCustomElement('button', btnAtts);
-        eventBus.subscribe(events.addItemBtnClicked, function(data) {
+        eventBus.subscribe(eventBus.addItemBtnClicked, function(data) {
             data.amount.value = parseInt(data.amount.value) + 1;
         });
         btn.onclick = function() {
-            eventBus.publish(events.addItemBtnClicked, data);
-            eventBus.publish(events.addItemToCartEvent, data);
+            eventBus.publish(eventBus.addItemBtnClicked, data);
+            eventBus.publish(eventBus.addItemToCartEvent, data);
         };
         return btn;
     }
@@ -36,15 +36,15 @@ function cartButtons() {
     function createRemoveBtn(eventBus, data) {
         var btn, btnAtts = {'className': removeFromCartBtnClass, 'innerText': 'Remove'};
         btn = helpers.createCustomElement('button', btnAtts);
-        eventBus.subscribe(events.removeItemBtnClicked, function(data) {
+        eventBus.subscribe(eventBus.removeItemBtnClicked, function(data) {
             var itemAmount = parseInt(data.amount.value);
             if (itemAmount > 0) {
                 data.amount.value = itemAmount - 1;
             }
         });
         btn.onclick = function() {
-            eventBus.publish(events.removeItemBtnClicked, data);
-            eventBus.publish(events.removeItemFromCartEvent, data);
+            eventBus.publish(eventBus.removeItemBtnClicked, data);
+            eventBus.publish(eventBus.removeItemFromCartEvent, data);
         };
         return btn;
     }
@@ -55,7 +55,7 @@ function cartButtons() {
     function createItemAmountElement(eventBus, id) {
         var itemAmount, atts = {'className': itemAmountInputClass, 'value': '0', 'disabled': 'true'};
         itemAmount = helpers.createCustomElement('input', atts);
-        eventBus.subscribe(events.resetItemAmountEvent + id, function() {
+        eventBus.subscribe(eventBus.resetItemAmountEvent + id, function() {
             itemAmount.value = 0;
         });
         return itemAmount;

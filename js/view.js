@@ -85,21 +85,21 @@
      * @param {Object} eventBus app events manager
      */
     function subscribeEventHandlers(eventBus) {
-        eventBus.subscribe(events.pageBtnClicked, function (data) {
+        eventBus.subscribe(eventBus.pageBtnClicked, function (data) {
             loadItems(data.start, data.end);
         });
 
-        eventBus.subscribe(events.pagingSizeChanged, function (pagindSize) {
+        eventBus.subscribe(eventBus.pagingSizeChanged, function (pagindSize) {
             var firstIndex, newCurPage, topRow, topRowIndex;
             topRow = helpers.getByClassName(itemsTableBody, tableRowClass + ':first-child');
             topRowIndex = parseInt(topRow.dataset.index, 10);
             newCurPage = Math.floor(topRowIndex / pagindSize) + 1;
             firstIndex = (newCurPage - 1) * pagindSize;
             loadItems(firstIndex, firstIndex + pagindSize);
-            eventBus.publish(events.curPageChanged, newCurPage);
+            eventBus.publish(eventBus.curPageChanged, newCurPage);
         });
 
-        eventBus.subscribe(events.refreshViewEvent, function(itemsAmount) {
+        eventBus.subscribe(eventBus.refreshViewEvent, function(itemsAmount) {
             loadItems(0, itemsAmount);
         });
     }
@@ -169,7 +169,7 @@
     function sortBtn(key, asc, eventBus) {
         var sortBtn, btnAtts, eventName;
 
-        eventName = (asc) ? events.sortAscBtnClicked : events.sortDescBtnClicked;
+        eventName = (asc) ? eventBus.sortAscBtnClicked : eventBus.sortDescBtnClicked;
         btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
                         : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
         sortBtn = helpers.createCustomElement('span', btnAtts);
@@ -182,7 +182,7 @@
                 return (data.asc) ? res : -res;
             });
             reindexItemRowElements();
-            eventBus.publish(events.refreshPagingEvent, {});
+            eventBus.publish(eventBus.refreshPagingEvent, {});
         });
         sortBtn.onclick = function() {
             eventBus.publish(eventName, {key: key, asc: asc});

@@ -21,7 +21,7 @@
      */
     function handlePagingSizeElement(itemsNmb, eventBus) {
         itemsPerPage.onchange = function () {
-            eventBus.publish(events.pagingSizeChanged, getPagingSize());
+            eventBus.publish(eventBus.pagingSizeChanged, getPagingSize());
             loadPaginationBar(getCurPageNmb(), itemsNmb, eventBus);
         }
     }
@@ -36,8 +36,8 @@
             var data = JSON.parse(pageBtnElement.dataset.paging), clickedPage, clickedPageNmb;
             clickedPage = helpers.getByClassName(pageBtnElement, pageLinkClass);
             clickedPageNmb = parseInt(clickedPage.innerText, 10);
-            eventBus.publish(events.pageBtnClicked, {start: data.start, end: data.end});
-            eventBus.publish(events.curPageChanged, clickedPageNmb);
+            eventBus.publish(eventBus.pageBtnClicked, {start: data.start, end: data.end});
+            eventBus.publish(eventBus.curPageChanged, clickedPageNmb);
         }
     }
 
@@ -111,13 +111,13 @@
      * @param {Object} eventBus app event manager
      */
     function init(itemsNmb, eventBus) {
-        eventBus.subscribe(events.curPageChanged, function (curPageNmb) {
+        eventBus.subscribe(eventBus.curPageChanged, function (curPageNmb) {
             helpers.getByClassName(pagesNav, curPageBtnClass).classList.remove(curPageBtnClass);
             helpers.getByClassName(pagesNav, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
         });
 
-        eventBus.subscribe(events.refreshPagingEvent, function() {
-            eventBus.publish(events.refreshViewEvent, getPagingSize());
+        eventBus.subscribe(eventBus.refreshPagingEvent, function() {
+            eventBus.publish(eventBus.refreshViewEvent, getPagingSize());
         });
 
         loadPaginationBar(1, itemsNmb, eventBus);
