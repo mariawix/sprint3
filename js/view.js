@@ -28,7 +28,7 @@
         itemKeys = Object.keys(items[0]);
         createItemRowElements(items, eventBus);
         loadTableHead(eventBus);
-        createEventHandlers(eventBus);
+        subscribeEventHandlers(eventBus);
     }
 
 
@@ -81,10 +81,10 @@
     }
 
     /**
-     * Initializes all view related event listeners.
+     * Subscribes view event handlers to the event bus.
      * @param {Object} eventBus app events manager
      */
-    function createEventHandlers(eventBus) {
+    function subscribeEventHandlers(eventBus) {
         eventBus.subscribe(events.pageBtnClicked, function (data) {
             loadItems(data.start, data.end);
         });
@@ -113,6 +113,7 @@
      * Appends a header cell to the given row.
      * @param row a table row to append the newly created header to
      * @param headerName the name of the header
+     * @param {Object} eventBus app event manager
      */
     function appendHeaderCell(row, headerName, eventBus) {
         var header,
@@ -150,7 +151,7 @@
      * Reindexes item DOM elements
      * @returns {Array} reindexed elements
      */
-    function reindexItemsElements() {
+    function reindexItemRowElements() {
         var itemIndex;
         for (itemIndex = 0; itemIndex < itemElements.length; itemIndex++) {
             itemElements[itemIndex].dataset.index = itemIndex;
@@ -159,10 +160,10 @@
     }
 
     /**
-     * Creates sort button and its click handler
-     * @param key sorting property
-     * @param asc if true then uses ascending order, otherwise - descending
-     * @param eventBus
+     * Creates sort button and subscribes its handler to the event bus.
+     * @param {String} key sorting property
+     * @param {Boolean} asc if true then uses ascending order, otherwise - descending
+     * @param {Object} eventBus app event manager
      * @returns {Element} created button
      */
     function sortBtn(key, asc, eventBus) {
@@ -174,13 +175,13 @@
         sortBtn = helpers.createCustomElement('span', btnAtts);
         eventBus.subscribe(eventName, function(data) {
             itemElements.sort(function(item1, item2) {
-                var el1val = getItemElementValue(item1, data.key),
-                    el2val = getItemElementValue(item2, data.key),
+                var el1val = getItemRowElementValue(item1, data.key),
+                    el2val = getItemRowElementValue(item2, data.key),
                     res;
                 res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
                 return (data.asc) ? res : -res;
             });
-            reindexItemsElements();
+            reindexItemRowElements();
             eventBus.publish(events.refreshPagingEvent, {});
         });
         sortBtn.onclick = function() {
@@ -196,7 +197,7 @@
      * @param {String} className class name of a cell of the item row
      * @returns {*} value of the cell with specified class name
      */
-    function getItemElementValue(itemElement, className) {
+    function getItemRowElementValue(itemElement, className) {
         var val = helpers.getByClassName(itemElement, className).innerText, valNmb;
         valNmb = parseInt(val, 10);
         return (isNaN(valNmb)) ? val : valNmb;

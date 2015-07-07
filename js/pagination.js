@@ -19,7 +19,7 @@
      * @param {Number} itemsNmb total number of items
      * @param {Object} app event manager
      */
-    function handleItemsPerPageElement(itemsNmb, eventBus) {
+    function handlePagingSizeElement(itemsNmb, eventBus) {
         itemsPerPage.onchange = function () {
             eventBus.publish(events.pagingSizeChanged, getPagingSize());
             loadPaginationBar(getCurPageNmb(), itemsNmb, eventBus);
@@ -121,7 +121,7 @@
         });
 
         loadPaginationBar(1, itemsNmb, eventBus);
-        handleItemsPerPageElement(itemsNmb, eventBus);
+        handlePagingSizeElement(itemsNmb, eventBus);
     }
 
     app.pagination = {
