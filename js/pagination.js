@@ -19,7 +19,9 @@ var paginationBar = (function () {
      */
     function handleItemsPerPageElement() {
         elements.itemsPerPage.onchange = function () {
+            var curPageNmb = parseInt(helpers.getByClassName(elements.pagesNav, CUR_PAGE_BTN).value, 10);
             eventBus.publish(events.itemsPerPageChanged, parseInt(elements.itemsPerPage.value));
+            loadPaginationBar(curPageNmb);
         }
     }
 
@@ -76,6 +78,7 @@ var paginationBar = (function () {
             helpers.getByClassName(elements.pagesNav, PAGE_BTN + ':nth-child(' + curPageNmb + ')').classList.add(CUR_PAGE_BTN);
         });
         loadPaginationBar(1);
+        handleItemsPerPageElement();
     }
 
     return {
