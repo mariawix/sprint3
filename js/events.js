@@ -6,11 +6,19 @@ var events = (function() {
     return {
         itemsPerPageChanged: 'itemsPerPageChanged',
         pageBtnClicked: 'pageBtnClicked',
-        addItem: 'addItemBtnPressed',
-        removeBtn: 'removeItemBtnPressed',
+
+        addItemBtnClicked: 'addItemBtnPressed',
+        removeItemBtnClicked: 'removeItemBtnPressed',
+        resetItemAmount: 'resetItemAmount',
+
         curPageChanged: 'curPageChanged',
         resetCart: 'resetCart',
         sortAsc: 'sortAsc',
-        sortDesc: 'sortDesc'
+        sortDesc: 'sortDesc',
+        addItemToCart: 'addItemToCart',
+        removeItemFromCart: 'removeItemFromCart',
+
+        refreshPaging: 'refreshPaging',
+        refreshView: 'refreshView'
     }
 })();

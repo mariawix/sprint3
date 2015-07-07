@@ -3,21 +3,18 @@
  */
 
 
-(function () {
+(function (app) {
     "use strict";
 
-    view.init(data);
-    paginationBar.init();
-    handleResetCartButton();
+    var data = app.data,
+        view = app.view,
+        pagination = app.pagination,
+        cart = app.cart,
+        eventBus = new PubSub();
 
+    view.init(data.items, eventBus);
+    pagination.init(data.items.length, eventBus);
+    view.loadItems(0, pagination.getPagingSize());
+    cart.init(eventBus);
 
-
-    /**
-     * Creates a listener for reset cart event and subscribes it to the event bus.
-     */
-    function handleResetCartButton() {
-        elements.resetCart.onclick = function () {
-            eventBus.publish(events.resetCart, {});
-        };
-    }
-})();
+})(app);

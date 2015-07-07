@@ -1,7 +1,7 @@
 /**
  * Shopping cart data: item objects and their headers (id, name etc.)
  */
-var data = (function() {
+(function(app) {
     var items = [
             {   "id": 0,
                 "name": "Exoplode",
@@ -703,11 +703,7 @@ var data = (function() {
                 "price": 150
             }
         ],
-        item,
-        type = 0,
-        i,
-        compoundItems = [],
-        compoundItemsCnstrs;
+        item, i, j, compoundItems = [], compoundItemConstructors;
 
     /**
      * Item base class
@@ -726,60 +722,42 @@ var data = (function() {
         this.price = price;
     }
 
-
-    /**
-     * On sale item
-     * @constructor
-     */
-    function OnSaleItem() {
+    function OnSaleItem() {                 // price = price - price * discount
         Item.apply(this, arguments);
         this.type = 'On sale';
     }
-    /**
-     * Out of stock item
-     * @constructor
-     */
-    function OutOfStockItem() {
+
+    function OutOfStockItem() {             // disable add button
         Item.apply(this, arguments);
         this.type = 'Out of stock';
     }
-    /**
-     * New item
-     * @constructor
-     */
+    /*
     function NewItem() {
         Item.apply(this, arguments);
         this.type = 'New items';
     }
-    /**
-     * Bundle item
-     * @constructor
-     */
     function BundleItem() {
         Item.apply(this, arguments);
         this.type = 'Bundle';
     }
-    /**
-     * Promotion item (items which appear at the top of the list)
-     * @constructor
-     */
     function PromotionItem() {
         Item.apply(this, arguments);
         this.type = 'Promotions';
     }
-
-    compoundItemsCnstrs = [OnSaleItem, OutOfStockItem, NewItem, BundleItem, PromotionItem];
+    */
+    compoundItemConstructors = [OnSaleItem, OutOfStockItem];
 
     // create compound items
     for (i = 0; i < items.length; i++) {
         item = items[i];
-        type = Math.floor(Math.random() * compoundItemsCnstrs.length);
-        compoundItems.push(new compoundItemsCnstrs[type](item['id'], item.name, item.description, item.image, item.price));
+        j = Math.floor(Math.random() * compoundItemConstructors.length);
+        compoundItems.push(new compoundItemConstructors[j](item.id, item.name, item.description, item.image, item.price));
     }
-    return {
-        items: compoundItems,
-        itemsNmb: compoundItems.length,
-        headers: Object.keys(items[0]),
-        headersNmb: Object.keys(items[0]).length
+
+    app.data = {
+//        itemsNmb: compoundItems.length,
+//        headers: Object.keys(items[0]),
+//        headersNmb: Object.keys(items[0]).length,
+        items: compoundItems
     };
-})();
+})(app);

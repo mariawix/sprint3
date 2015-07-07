@@ -1,7 +1,7 @@
 /**
  * Loads even manager into the app.
  */
-var eventBus = (function () {
+function PubSub() {
     /* {
      *     name1: cb1,
      *     ...
@@ -41,4 +41,4 @@ var eventBus = (function () {
         subscribe: subscribe,
         unsubscribe: unsubscribe
     }
-})();
+}
