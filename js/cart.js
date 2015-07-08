@@ -8,7 +8,7 @@
 (function(app) {
     var ITEM_NOT_FOUND = -1,
 
-        totalBill = document.querySelector('.total-bill'),
+        totalBillElement = document.querySelector('.total-bill'),
         resetCartBtn = document.querySelector('.reset-cart-btn'),
 
         addedItems = [];
@@ -18,7 +18,7 @@
      * @returns {Number} total bill.
      */
     function getTotalBillValue() {
-        return parseInt(totalBill.value, 10);
+        return parseInt(totalBillElement.value, 10);
     }
 
     /**
@@ -45,14 +45,13 @@
         itemIndex = getItemIndexByID(item.id);
         if (itemIndex !== ITEM_NOT_FOUND) {
             addedItems[itemIndex].amount++;
-            totalBill.value = getTotalBillValue() + item.price;
         }
         else {
             itemClone = JSON.parse(JSON.stringify(item));
             itemClone.amount = 1;
             addedItems.push(itemClone);
-            totalBill.value = getTotalBillValue() + itemClone.price;
         }
+        totalBillElement.value = getTotalBillValue() + item.price;
     }
 
     /**
@@ -68,7 +67,7 @@
         }
         if (addedItems[itemIndex].amount && addedItems[itemIndex].amount > 0) {
             addedItems[itemIndex].amount = addedItems[itemIndex].amount - 1;
-            totalBill.value = getTotalBillValue() - item.price;
+            totalBillElement.value = getTotalBillValue() - item.price;
         }
     }
 
@@ -82,7 +81,7 @@
                 eventBus.publish(events.resetItemAmountEvent + item.id, {});
             });
             addedItems = [];
-            totalBill.value = 0;
+            totalBillElement.value = 0;
         };
 
         eventBus.subscribe(events.addItemToCartEvent, addItemToCart);
