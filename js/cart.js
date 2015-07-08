@@ -45,14 +45,13 @@
         itemIndex = getItemIndexByID(item.id);
         if (itemIndex !== ITEM_NOT_FOUND) {
             addedItems[itemIndex].amount++;
-            totalBill.value = getTotalBillValue() + item.price;
         }
         else {
             itemClone = JSON.parse(JSON.stringify(item));
             itemClone.amount = 1;
             addedItems.push(itemClone);
-            totalBill.value = getTotalBillValue() + itemClone.price;
         }
+        totalBill.value = getTotalBillValue() + item.price;
     }
 
     /**
