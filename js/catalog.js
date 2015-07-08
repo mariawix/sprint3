@@ -3,7 +3,7 @@
  */
 
 /*
- * Loads view module into the app
+ * Loads catalog module into the app
  */
 (function(app) {
     var sortAscBtnClass = 'sort-asc-btn',
@@ -30,7 +30,6 @@
         loadTableHead(eventBus);
         subscribeEventHandlers(eventBus);
     }
-
 
     /**
      * Creates all item row elements.
@@ -104,7 +103,6 @@
         });
     }
 
-
     /**************************************************************************************************
      *                                              Helpers
      **************************************************************************************************/
@@ -128,7 +126,7 @@
 
     /**
      * Converts given item data object into an item row element.
-     * @param {Obect} item item data
+     * @param {Object} item item data
      * @param {Number} index index of the item
      * @returns {Element} the newly created element
      */
@@ -189,7 +187,6 @@
         };
         return sortBtn;
     }
-
 
     /**
      * Gets an item row element and a cell class name and returns value of that cell.

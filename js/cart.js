@@ -37,6 +37,27 @@
     }
 
     /**
+     * Sets item amount of the given item.
+     * @param {Object} data object { item: item, amount: amount }
+     */
+    function setItemAmount(data) {
+        var item = data.item, amount = data.amount, itemIndex, itemClone;
+        itemIndex = getItemIndexByID(item.id);
+        if (itemIndex === ITEM_NOT_FOUND) {
+            itemClone = JSON.parse(JSON.stringify(item));
+            itemIndex = addedItems.length;
+            itemClone.amount = amount;
+            addedItems.push(itemClone);
+        }
+        else {
+            totalBillElement.value = getTotalBillValue() - item.price * addedItems[itemIndex].amount;
+        }
+        totalBillElement.value = getTotalBillValue() + item.price * amount;
+        addedItems[itemIndex].amount = amount;
+
+    }
+
+    /**
      * Adds a new item into the cart.
      * @param {Object} data object containing item to add.
      */
@@ -86,6 +107,7 @@
 
         eventBus.subscribe(eventBus.addItemToCartEvent, addItemToCart);
         eventBus.subscribe(eventBus.removeItemFromCartEvent, removeItemFromCart);
+        eventBus.subscribe(eventBus.setItemAmountEvent, setItemAmount);
     }
 
     app.cart = {

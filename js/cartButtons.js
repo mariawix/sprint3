@@ -1,6 +1,7 @@
 /**
  * Created by mariao on 7/7/15.
  */
+// TODO: change design? init in main/catalog/cart?
 function cartButtons() {
 
     var cartBtnsContainerClass = 'item-amount',
@@ -37,7 +38,7 @@ function cartButtons() {
         var btn, btnAtts = {'className': removeFromCartBtnClass, 'innerText': 'Remove'};
         btn = helpers.createCustomElement('button', btnAtts);
         eventBus.subscribe(eventBus.removeItemBtnClicked, function(data) {
-            var itemAmount = parseInt(data.amount.value);
+            var itemAmount = parseInt(data.amount.value, 10);
             if (itemAmount > 0) {
                 data.amount.value = itemAmount - 1;
             }
@@ -52,12 +53,15 @@ function cartButtons() {
     /*
      * TODO: handle input
      */
-    function createItemAmountElement(eventBus, id) {
-        var atts = {'className': itemAmountInputClass, 'value': 0, 'disabled': 'true'},
+    function createItemAmountElement(eventBus, item) {
+        var atts = {'className': itemAmountInputClass, 'value': 0},
             itemAmount = helpers.createCustomElement('input', atts);
-        eventBus.subscribe(eventBus.resetItemAmountEvent + id, function() {
+        eventBus.subscribe(eventBus.resetItemAmountEvent + item.id, function() {
             itemAmount.value = 0;
         });
+        itemAmount.onchange = function() {
+            eventBus.publish(eventBus.setItemAmountEvent, {'item': item, 'amount': parseInt(itemAmount.value)});
+        };
         return itemAmount;
     }
 
@@ -70,7 +74,7 @@ function cartButtons() {
     function appendCartBtns(parentElement, item, eventBus) {
         var itemAmount, container, data;
         container = helpers.appendChild(parentElement, 'span', {'className': cartBtnsContainerClass});
-        itemAmount = createItemAmountElement(eventBus, item.id);
+        itemAmount = createItemAmountElement(eventBus, item);
         container.appendChild(itemAmount);
         data = {'amount': itemAmount, 'item': item};
         container.appendChild(createAddBtn(eventBus, data));

@@ -37,17 +37,22 @@
     }
 
     app.eventBus = {
+        // Pagination
         pagingSizeChanged: 'itemsPerPageChanged',
         pageBtnClicked: 'pageBtnClicked',
+        curPageChanged: 'curPageChanged',
+        // Cart Buttons
         addItemBtnClicked: 'addItemBtnPressed',
         removeItemBtnClicked: 'removeItemBtnPressed',
+        // Cart
         resetItemAmountEvent: 'resetItemAmount',
-        curPageChanged: 'curPageChanged',
-        resetCartBtnClicked: 'resetCart',
-        sortAscBtnClicked: 'sortAsc',
-        sortDescBtnClicked: 'sortDesc',
+        setItemAmountEvent: 'setItemAmountEvent',
         addItemToCartEvent: 'addItemToCart',
         removeItemFromCartEvent: 'removeItemFromCart',
+        resetCartBtnClicked: 'resetCart',
+        // Catalogue
+        sortAscBtnClicked: 'sortAsc',
+        sortDescBtnClicked: 'sortDesc',
         refreshPagingEvent: 'refreshPaging',
         refreshViewEvent: 'refreshView',
 
