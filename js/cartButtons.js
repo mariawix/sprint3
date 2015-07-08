@@ -53,8 +53,8 @@ function cartButtons() {
      * TODO: handle input
      */
     function createItemAmountElement(eventBus, id) {
-        var itemAmount, atts = {'className': itemAmountInputClass, 'value': '0', 'disabled': 'true'};
-        itemAmount = helpers.createCustomElement('input', atts);
+        var atts = {'className': itemAmountInputClass, 'value': 0, 'disabled': 'true'},
+            itemAmount = helpers.createCustomElement('input', atts);
         eventBus.subscribe(eventBus.resetItemAmountEvent + id, function() {
             itemAmount.value = 0;
         });

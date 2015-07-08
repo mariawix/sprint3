@@ -703,7 +703,7 @@
                 "price": 150
             }
         ],
-        item, i, j, compoundItems = [], compoundItemConstructors;
+        compoundItems = [];
 
     /**
      * Item base class
@@ -745,19 +745,21 @@
         this.type = 'Promotions';
     }
     */
-    compoundItemConstructors = [OnSaleItem, OutOfStockItem];
+    (function() {
+        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem];
+        items.forEach(function(item) {
+            nmb = Math.floor(Math.random() * compoundItemConstructors.length);
+            compoundItems.push(new compoundItemConstructors[nmb](item.id, item.name, item.description, item.image, item.price));
+        });
+    })();
 
-    // create compound items
-    for (i = 0; i < items.length; i++) {
-        item = items[i];
-        j = Math.floor(Math.random() * compoundItemConstructors.length);
-        compoundItems.push(new compoundItemConstructors[j](item.id, item.name, item.description, item.image, item.price));
-    }
 
     app.data = {
-//        itemsNmb: compoundItems.length,
-//        headers: Object.keys(items[0]),
-//        headersNmb: Object.keys(items[0]).length,
-        items: compoundItems
+        getItems: function() {
+            return compoundItems;
+        },
+        getItemsNmb: function() {
+            return compoundItems.length;
+        }
     };
 })(app);

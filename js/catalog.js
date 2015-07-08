@@ -89,13 +89,13 @@
             loadItems(data.start, data.end);
         });
 
-        eventBus.subscribe(eventBus.pagingSizeChanged, function (pagindSize) {
+        eventBus.subscribe(eventBus.pagingSizeChanged, function (pagingSize) {
             var firstIndex, newCurPage, topRow, topRowIndex;
             topRow = helpers.getByClassName(itemsTableBody, tableRowClass + ':first-child');
             topRowIndex = parseInt(topRow.dataset.index, 10);
-            newCurPage = Math.floor(topRowIndex / pagindSize) + 1;
-            firstIndex = (newCurPage - 1) * pagindSize;
-            loadItems(firstIndex, firstIndex + pagindSize);
+            newCurPage = Math.floor(topRowIndex / pagingSize) + 1;
+            firstIndex = (newCurPage - 1) * pagingSize;
+            loadItems(firstIndex, firstIndex + pagingSize);
             eventBus.publish(eventBus.curPageChanged, newCurPage);
         });
 

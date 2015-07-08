@@ -10,10 +10,10 @@
         view = app.view,
         pagination = app.pagination,
         cart = app.cart,
-        eventBus = new PubSub();
+        eventBus = app.eventBus;
 
-    view.init(data.items, eventBus);
-    pagination.init(data.items.length, eventBus);
+    view.init(data.getItems(), eventBus);
+    pagination.init(data.getItemsNmb(), eventBus);
     view.loadItems(0, pagination.getPagingSize());
     cart.init(eventBus);
 

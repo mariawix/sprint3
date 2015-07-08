@@ -1,21 +1,7 @@
 /**
- * TODO: change design? load to app?
+ * Loads event manager to the app
  */
-function PubSub() {
-    this.pagingSizeChanged = 'itemsPerPageChanged';
-    this.pageBtnClicked = 'pageBtnClicked';
-    this.addItemBtnClicked = 'addItemBtnPressed';
-    this.removeItemBtnClicked = 'removeItemBtnPressed';
-    this.resetItemAmountEvent = 'resetItemAmount';
-    this.curPageChanged = 'curPageChanged';
-    this.resetCartBtnClicked = 'resetCart';
-    this.sortAscBtnClicked = 'sortAsc';
-    this.sortDescBtnClicked = 'sortDesc';
-    this.addItemToCartEvent = 'addItemToCart';
-    this.removeItemFromCartEvent = 'removeItemFromCart';
-    this.refreshPagingEvent = 'refreshPaging';
-    this.refreshViewEvent = 'refreshView';
-
+(function PubSub(app) {
     /* {
      *     name1: cb1,
      *     ...
@@ -29,15 +15,15 @@ function PubSub() {
      * @param {String} name event name
      * @param {Function} cb callback function of the event
      */
-    this.subscribe = function(name, cb) {
+    function subscribe(name, cb) {
         events[name] = cb;
-
     }
+
     /**
      * Removes event with specified name from the event bus.
      * @param {String} name event name
      */
-    this.unsubscribe = function(name) {
+    function unsubscribe(name) {
         events[name] = undefined;
     }
 
@@ -46,7 +32,27 @@ function PubSub() {
      * @param {String} name event name
      * @param {Object} data data to be passed to event handler
      */
-    this.publish = function(name, data) {
+    function publish(name, data) {
         events[name](data);
     }
-}
+
+    app.eventBus = {
+        pagingSizeChanged: 'itemsPerPageChanged',
+        pageBtnClicked: 'pageBtnClicked',
+        addItemBtnClicked: 'addItemBtnPressed',
+        removeItemBtnClicked: 'removeItemBtnPressed',
+        resetItemAmountEvent: 'resetItemAmount',
+        curPageChanged: 'curPageChanged',
+        resetCartBtnClicked: 'resetCart',
+        sortAscBtnClicked: 'sortAsc',
+        sortDescBtnClicked: 'sortDesc',
+        addItemToCartEvent: 'addItemToCart',
+        removeItemFromCartEvent: 'removeItemFromCart',
+        refreshPagingEvent: 'refreshPaging',
+        refreshViewEvent: 'refreshView',
+
+        subscribe: subscribe,
+        unsubscribe: unsubscribe,
+        publish: publish
+    };
+})(app);
