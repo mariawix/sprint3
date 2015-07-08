@@ -79,15 +79,15 @@
     function init(eventBus) {
         resetCartBtn.onclick = function () {
             addedItems.forEach(function(item) {
-                eventBus.publish(eventBus.resetItemAmountEvent + item.id, {});
+                eventBus.publish(events.resetItemAmountEvent + item.id, {});
             });
             addedItems = [];
             totalBill.value = 0;
         };
 
-        eventBus.subscribe(eventBus.addItemToCartEvent, addItemToCart);
+        eventBus.subscribe(events.addItemToCartEvent, addItemToCart);
 
-        eventBus.subscribe(eventBus.removeItemFromCartEvent, removeItemFromCart);
+        eventBus.subscribe(events.removeItemFromCartEvent, removeItemFromCart);
     }
 
     app.cart = {
