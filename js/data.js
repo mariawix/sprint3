@@ -2,7 +2,8 @@
  * Shopping cart data.
  */
 (function(app) {
-    var items = [
+    var couponsNmb = 10,
+        items = [
             {   "id": 0,
                 "name": "Exoplode",
                 "description": "Est culpa veniam sint aliquip. Anim esse et et ullamco aute ullamco voluptate irure fugiat exercitation velit cupidatat. Ipsum deserunt cupidatat eu laborum ut mollit.\r\n",
@@ -703,14 +704,15 @@
                 "price": 150
             }
         ],
-        compoundItems = [];
+        compoundItems = [],
+        coupons = [];
 
     /**
      * Item super class
      * @param {Number} id item id
      * @param {String} name item name
      * @param {String} description item description
-     * @param {String} image url to item image
+     * @param {String} image url of item image
      * @param {Number} price item price
      * @constructor
      */
@@ -720,29 +722,92 @@
         this.description = description;
         this.image = image;
         this.price = price;
-        this.quantity = Math.floor(Math.random() * 5 + 5);
         this.type = 'base';
+        this.quantity = 0;
+        this.discount = 0;
     }
 
+    Item.getItemKeys = function () {
+        return ['id', 'name', 'description', 'image', 'price'];
+    };
 
-    function OnSaleItem() {                 // price = price - price * discount
+    Item.getBasicItemKeys = function () {
+        return ['id', 'name', 'price'];
+    };
+
+    function OnSaleItem() {
         Item.apply(this, arguments);
-        this.discount = Math.floor(Math.random() * 7 + 1) * 10;
         this.type = 'sale';
     }
 
-    function OutOfStockItem() {             // disable add button
+    function OutOfStockItem() {
         Item.apply(this, arguments);
         this.type = 'out';
-        this.quantity = 0;
+    }
+
+    function getDiscount() {
+        return Math.floor(Math.random() * 7 + 1) * 10;
     }
 
     (function() {
-        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem, Item];
+        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem, Item], compoundItem;
         items.forEach(function(item) {
             nmb = Math.floor(Math.random() * compoundItemConstructors.length);
-            compoundItems.push(new compoundItemConstructors[nmb](item.id, item.name, item.description, item.image, item.price));
+            compoundItem = new compoundItemConstructors[nmb](item.id, item.name, item.description, item.image, item.price);
+            compoundItem.quantity = (compoundItem instanceof  OutOfStockItem) ? 0 : Math.floor(Math.random() * 5 + 5);
+            compoundItem.discount = (compoundItem instanceof OnSaleItem) ? getDiscount() : 0;
+            compoundItems.push(compoundItem);
         });
+    })();
+
+
+    function Coupon(code) {
+        this.code = code;
+    }
+
+    function FreeItemCoupon(itemID) {
+        this.freeItemID = itemID;
+    }
+
+    function DiscountCoupon(discountValue) {
+        this.discountValue = discountValue;
+    }
+
+    (function() {
+        var nmb, coupon, code, i;
+
+        /**
+         * Generates a coupon code of given length.
+         * @param length number of digits to be generated
+         * @param base digit range [0, base)
+         * @returns {string} the generated code
+         */
+        function getRandomCode(length, base) {
+            var i, code = '';
+            for (i = 0; i < length; i++) {
+                code += Math.floor(Math.random() * base);
+            }
+            return code;
+        }
+
+        for (i = 0; i < couponsNmb; i++) {
+            code = getRandomCode(5, 10);
+            nmb = Math.floor(Math.random() * 2);
+            switch (nmb) {
+                case 0:
+                    DiscountCoupon.prototype = new Coupon(code);
+                    DiscountCoupon.prototype.constructor = DiscountCoupon;
+                    coupon = new DiscountCoupon(getDiscount());
+                    break;
+                case 1:
+                    FreeItemCoupon.prototype = new Coupon(code);
+                    FreeItemCoupon.prototype.constructor = FreeItemCoupon;
+                    coupon = new FreeItemCoupon(Math.floor(Math.random() * items.length));
+                    break;
+            }
+            console.log('coupon ' + nmb + ' ' + code);
+            coupons.push(coupon);
+        }
     })();
 
 
@@ -753,11 +818,8 @@
         getItemsNmb: function () {
             return compoundItems.length;
         },
-        getItemKeys: function () {
-            return ['id', 'name', 'description', 'image', 'price'];
-        },
-        getBasicItemKeys: function () {
-            return ['id', 'name', 'price'];
-        }
+        coupons: coupons,
+        Item: Item
+
     };
 }(app));

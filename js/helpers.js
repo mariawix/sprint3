@@ -160,6 +160,26 @@ var helpers = (function() {
         return rowElements;
     }
 
+    /**
+     * Exposes the given element.
+     * @param element an element
+     */
+    function exposeElement(element) {
+        if (element.classList.contains('visuallyhidden')) {
+            element.classList.remove('visuallyhidden');
+        }
+    }
+
+    /**
+     * Hides the given element
+     * @param element an element
+     */
+    function hideElement(element) {
+        if (!element.classList.contains('visuallyhidden')) {
+            element.classList.add('visuallyhidden');
+        }
+    }
+
     return {
         appendChild: appendChild,
         createCustomElement: createCustomElement,
@@ -171,6 +191,9 @@ var helpers = (function() {
         loadRows: loadRows,
 
         getFirstBodyRow: getFirstBodyRow,
-        createRowElements: createRowElements
+        createRowElements: createRowElements,
+
+        hideElement: hideElement,
+        exposeElement: exposeElement
     }
 }());

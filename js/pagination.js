@@ -17,7 +17,7 @@
         pagingSizeElement = document.querySelector('.paging-size');
 
     /**
-     * Creates paging size change event listener and subscribes it to the event bus.
+     * Handles paging size change event.
      * @param {Number} itemsNmb total number of items
      */
     function handlePagingSizeElement(itemsNmb) {
@@ -28,8 +28,8 @@
     }
 
     /**
-     * Creates page button click callback and subscribes it to the event bus.
-     * @param {Element} pageBtnElement button element
+     * Handles page button click event.
+     * @param {Element} pageBtnElement a page button element
      */
     function pageBtnHandler(pageBtnElement) {
         pageBtnElement.onclick = function () {
@@ -42,15 +42,15 @@
     }
 
     /**
-     * Creates pagination button.
-     * @param {Number} curPage number of displayed page
-     * @param {Number} pageNmb number of button to create
+     * Creates a page button.
+     * @param {Boolean} curPage true if created button corresponds to the currently selected page, false - otherwise.
+     * @param {Number} pageIndex page button index
      * @param {Number} pagingSize number of items displayed on a single page
-     * @returns {Element} created button
+     * @returns {Element} the created button
      */
-    function createPaginationBtnElement(curPage, pageNmb, pagingSize) {
-        var firstItemIndex = (pageNmb - 1) * pagingSize,
-            endItemIndex = pageNmb * pagingSize,
+    function createPageBtnElement(curPage, pageIndex, pagingSize) {
+        var firstItemIndex = (pageIndex - 1) * pagingSize,
+            endItemIndex = pageIndex * pagingSize,
             pageItemAtts, className, btn;
         className = pageBtnClass;
         if (curPage) {
@@ -61,23 +61,23 @@
             'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
         };
         btn = helpers.createCustomElement('li', pageItemAtts);
-        helpers.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageNmb});
+        helpers.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageIndex});
         return btn;
     }
 
     /**
      * Loads pagination bar.
-     * @param {Number} curPage number of displayed page
+     * @param {Number} curPage index of displayed page
      * @param {Number} itemsNmb total number of items
      */
     function loadPaginationBar(curPage, itemsNmb) {
         var pageNmb, btn,
             pagingFragment = document.createDocumentFragment(),
-            itemsPerPageNmb = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
+            pagingSizeValue = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
         paginationListElement.innerHTML = "";
         // TODO: unsubscribe handlers
-        for (pageNmb = 1; (pageNmb - 1) * itemsPerPageNmb < itemsNmb; pageNmb++) {
-            btn = createPaginationBtnElement(pageNmb === curPage, pageNmb, itemsPerPageNmb);
+        for (pageNmb = 1; (pageNmb - 1) * pagingSizeValue < itemsNmb; pageNmb++) {
+            btn = createPageBtnElement(pageNmb === curPage, pageNmb, pagingSizeValue);
             pagingFragment.appendChild(btn);
             pageBtnHandler(btn);
         }
@@ -86,7 +86,7 @@
 
     /**
      * Returns number of the currently displayed page.
-     * @returns {Number} number of the current page
+     * @returns {Number} index of the current page
      */
     function getCurPageNmb() {
         var curPageBtn, curPageLink, curPageNmb;

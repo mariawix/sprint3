@@ -21,7 +21,10 @@ input {
     border-radius: 0.5rem;
 }
 button {
+    padding: 0.2rem 0.4rem;
+    margin: 0.2rem 0.4rem;
     font-size: inherit;
+    cursor: pointer;
     font: inherit;
     border: 0.05rem solid;
     border-radius: 0.5rem;
@@ -43,6 +46,11 @@ button {
 }
 .store {
     text-align: center;
+}
+.switch-theme-btn {
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
 }
 /* Tables */
 .tbody, .thead, .catalog, .tr, .td, .th {
@@ -114,7 +122,10 @@ button {
     margin: 0.5rem 0 1rem;
     cursor: pointer;
 }
-
+.coupon-input {
+    display: block;
+    margin: 0 auto;
+}
 /* Quantity Buttons */
 .item-amount .add,
 .item-amount .remove {
@@ -194,10 +205,6 @@ button {
 input,
 button {
     border-color: #ddd;
-}
-.reset-cart-btn,
-.view-cart-btn,
-.hide-cart-btn {
     background-color: #fff;
 }
 .item-amount .add,
@@ -220,11 +227,13 @@ button {
 .classic-theme button,
 .classic-theme .item-amount .add,
 .classic-theme .item-amount .remove,
-.classic-theme .pagination-list .page-link {
+.classic-theme .pagination-list .page-link,
+.classic-theme .switch-theme-btn {
     color: #337ab7;
 }
 .classic-theme .thead,
-.classic-theme .item-amount .amount {
+.classic-theme .item-amount .amount,
+.classic-theme .switch-theme-btn {
     background-color: #CAE3FA;
 }
 /* Bright Theme */
@@ -232,18 +241,18 @@ button {
 .bright-theme button,
 .bright-theme .item-amount .add,
 .bright-theme .item-amount .remove,
-.bright-theme .pagination-list .page-link {
+.bright-theme .pagination-list .page-link,
+.bright-theme .switch-theme-btn {
     color: #ff0000;
 }
 .bright-theme .thead,
-.bright-theme .item-amount .amount {
+.bright-theme .item-amount .amount,
+.bright-theme .switch-theme-btn {
     background-color: #bc8f8f;
 }
 /**************************************************************************************************
  * State Rules
  **************************************************************************************************/
-.reset-cart-btn:hover,
-.view-cart-btn:hover,
-.hide-cart-btn:hover {
+button:hover {
     background-color: #ddd;
 }
