@@ -7,14 +7,15 @@
     "use strict";
 
     var data = app.data,
-        view = app.view,
+        catalog = app.catalog,
         pagination = app.pagination,
         cart = app.cart,
         eventBus = app.eventBus;
 
-    view.init(data.getItems(), eventBus);
-    pagination.init(data.getItemsNmb(), eventBus);
-    view.loadItems(0, pagination.getPagingSize());
-    cart.init(eventBus);
+    quantityButtons.setEventManager(eventBus);
+    catalog.init(data.getItems(), data.getItemKeys());
+    pagination.init(data.getItemsNmb());
+    catalog.loadRows(0, pagination.getPagingSize());
+    cart.init(data.getBasicItemKeys());
 
-})(app);
+}(app));

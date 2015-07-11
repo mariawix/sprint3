@@ -1,5 +1,5 @@
 /**
- * Shopping cart data: item objects and their headers (id, name etc.)
+ * Shopping cart data.
  */
 (function(app) {
     var items = [
@@ -706,7 +706,7 @@
         compoundItems = [];
 
     /**
-     * Item base class
+     * Item super class
      * @param {Number} id item id
      * @param {String} name item name
      * @param {String} description item description
@@ -720,33 +720,25 @@
         this.description = description;
         this.image = image;
         this.price = price;
+        this.quantity = Math.floor(Math.random() * 5 + 5);
+        this.type = 'base';
     }
+
 
     function OnSaleItem() {                 // price = price - price * discount
         Item.apply(this, arguments);
-        this.type = 'On sale';
+        this.discount = Math.floor(Math.random() * 7 + 1) * 10;
+        this.type = 'sale';
     }
 
     function OutOfStockItem() {             // disable add button
         Item.apply(this, arguments);
-        this.type = 'Out of stock';
+        this.type = 'out';
+        this.quantity = 0;
     }
-    /*
-    function NewItem() {
-        Item.apply(this, arguments);
-        this.type = 'New items';
-    }
-    function BundleItem() {
-        Item.apply(this, arguments);
-        this.type = 'Bundle';
-    }
-    function PromotionItem() {
-        Item.apply(this, arguments);
-        this.type = 'Promotions';
-    }
-    */
+
     (function() {
-        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem];
+        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem, Item];
         items.forEach(function(item) {
             nmb = Math.floor(Math.random() * compoundItemConstructors.length);
             compoundItems.push(new compoundItemConstructors[nmb](item.id, item.name, item.description, item.image, item.price));
@@ -755,11 +747,17 @@
 
 
     app.data = {
-        getItems: function() {
+        getItems: function () {
             return compoundItems;
         },
-        getItemsNmb: function() {
+        getItemsNmb: function () {
             return compoundItems.length;
+        },
+        getItemKeys: function () {
+            return ['id', 'name', 'description', 'image', 'price'];
+        },
+        getBasicItemKeys: function () {
+            return ['id', 'name', 'price'];
         }
     };
-})(app);
+}(app));

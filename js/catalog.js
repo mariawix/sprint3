@@ -3,205 +3,139 @@
  */
 
 /*
- * Loads catalog module into the app
+ * Loads catalogue module into the app
  */
 (function(app) {
     var sortAscBtnClass = 'sort-asc-btn',
         sortDescBtnClass = 'sort-desc-btn',
-        tableBodyCellClass = 'td',
-        tableHeaderCellClass = 'th',
-        tableRowClass = 'tr',
 
-        itemsTable = document.querySelector('.items-table'),
-        itemsTableHead = document.querySelector('.items-table .thead'),
-        itemsTableBody = document.querySelector('.items-table .tbody'),
+        eventBus = app.eventBus,
 
-        itemElements = [],
-        itemKeys = [];
+        tableElement = document.querySelector('.catalog'),
+
+        itemRowElements = [];
 
     /**
-     * Creates item row elements, initializes the table and subscribes event handlers to event bus.
+     * Creates item row elements, initializes the table and subscribes event handlers to the event bus.
      * @param {Array} items item objects
-     * @param {Object} eventBus events manager
      */
-    function init(items, eventBus) {
-        itemKeys = Object.keys(items[0]);
-        createItemRowElements(items, eventBus);
-        loadTableHead(eventBus);
-        subscribeEventHandlers(eventBus);
-    }
-
-    /**
-     * Creates all item row elements.
-     * @param {Array} items array of items
-     * @param {Object} eventBus events manager
-     */
-    function createItemRowElements(items, eventBus) {
-        var i, itemRowElement, cartBtnsCell, cartBtnsHelpers = cartButtons();
-        for (i = 0; i < items.length; i++) {
-            itemRowElement = createItemRowElement(items[i], i);
-            cartBtnsCell = helpers.appendChild(itemRowElement, 'div', {'className': tableBodyCellClass});
-            cartBtnsHelpers.appendCartBtns(cartBtnsCell, items[i], eventBus);
-            itemElements.push(itemRowElement);
-        }
-    }
-
-    /**
-     * Loads header cells to the head of the table.
-     * @param {Object} eventBus app event manager
-     */
-    function loadTableHead(eventBus) {
-        var row, headFragment;
-        row = helpers.createCustomElement('div', {'className': tableRowClass});
-        itemKeys.forEach(function(header) {
-            appendHeaderCell(row, header, eventBus);
-        });
-        helpers.appendChild(row, 'div', {'innerText': 'cart', 'className': tableHeaderCellClass});
-        itemsTableHead.appendChild(row);
-        headFragment = document.createDocumentFragment();
-        headFragment.appendChild(itemsTableHead);
-        itemsTable.appendChild(headFragment);
+    function init(items, itemKeys) {
+        var headers = itemKeys.concat('cart');
+        itemRowElements = helpers.createRowElements(items, headers, appendContent);
+        helpers.loadTableHead(tableElement, headers, appendSortBtn);
+        subscribeCatalogEventHandlers();
     }
 
     /**
      * Loads items with indices [firstIndex, endIndex - 1] to the table.
-     * @param {Number} firstIndex index of the first item element to be loaded
+     * @param {Number} firstIndex index of the first item row element to be loaded
      * @param {Number} endIndex index at which to end loading
      */
     function loadItems(firstIndex, endIndex) {
-        var bodyFragment = document.createDocumentFragment(), itemIndex;
-        endIndex = (endIndex < itemElements.length) ? endIndex : itemElements.length;
-        itemsTableBody.innerHTML = "";
-        for (itemIndex = firstIndex; itemIndex < endIndex; itemIndex++) {
-            itemsTableBody.appendChild(itemElements[itemIndex]);
-        }
-        bodyFragment.appendChild(itemsTableBody);
-        itemsTable.appendChild(bodyFragment);
+        helpers.loadRows(tableElement, itemRowElements, firstIndex, endIndex);
     }
 
     /**
-     * Subscribes view event handlers to the event bus.
-     * @param {Object} eventBus app events manager
+     * Subscribes catalogue event handlers to the event bus.
      */
-    function subscribeEventHandlers(eventBus) {
-        eventBus.subscribe(eventBus.pageBtnClicked, function (data) {
+    function subscribeCatalogEventHandlers() {
+        eventBus.subscribe(eventBus.eventNames.pageBtnClicked, function (data) {
             loadItems(data.start, data.end);
         });
 
-        eventBus.subscribe(eventBus.pagingSizeChanged, function (pagingSize) {
+        eventBus.subscribe(eventBus.eventNames.pagingSizeChanged, function (pagingSize) {
             var firstIndex, newCurPage, topRow, topRowIndex;
-            topRow = helpers.getByClassName(itemsTableBody, tableRowClass + ':first-child');
+            topRow = helpers.getFirstBodyRow(tableElement);
             topRowIndex = parseInt(topRow.dataset.index, 10);
             newCurPage = Math.floor(topRowIndex / pagingSize) + 1;
             firstIndex = (newCurPage - 1) * pagingSize;
             loadItems(firstIndex, firstIndex + pagingSize);
-            eventBus.publish(eventBus.curPageChanged, newCurPage);
+            eventBus.publish(eventBus.eventNames.curPageChanged, newCurPage);
         });
 
-        eventBus.subscribe(eventBus.refreshViewEvent, function(itemsAmount) {
+        eventBus.subscribe(eventBus.eventNames.reloadItems, function(itemsAmount) {
             loadItems(0, itemsAmount);
         });
+
+        subscribeSortBtnClickHandler(true);
+        subscribeSortBtnClickHandler(false);
     }
 
     /**************************************************************************************************
      *                                              Helpers
      **************************************************************************************************/
-
     /**
-     * Appends a header cell to the given row.
-     * @param row a table row to append the newly created header to
-     * @param headerName the name of the header
-     * @param {Object} eventBus app event manager
+     * Appends a sort button to a given element.
+     * @param {Element} parentElement a parent element to append the button to
+     * @param {String} key sorting property
+     * @param {Boolean} asc sorting order, if true then ascending, otherwise - descending
      */
-    function appendHeaderCell(row, headerName, eventBus) {
-        var header,
-            headerAttributes =  {
-                'innerText': headerName,
-                'className': tableHeaderCellClass + ' ' + headerName
+    function appendSortBtn(parentElement, key, asc) {
+        var sortBtn, btnAtts, eventName;
+        if (key !== 'image' && key !== 'cart') {
+            eventName = (asc) ? eventBus.eventNames.sortAscBtnClicked : eventBus.eventNames.sortDescBtnClicked;
+            btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
+                            : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
+            sortBtn = helpers.createCustomElement('span', btnAtts);
+            sortBtn.onclick = function () {
+                eventBus.publish(eventName, {key: key, asc: asc});
             };
-        header = helpers.appendChild(row, 'div', headerAttributes);
-        header.appendChild(sortBtn(headerName, true, eventBus));
-        header.appendChild(sortBtn(headerName, false, eventBus));
-    }
-
-    /**
-     * Converts given item data object into an item row element.
-     * @param {Object} item item data
-     * @param {Number} index index of the item
-     * @returns {Element} the newly created element
-     */
-    function createItemRowElement(item, index) {
-        var itemRowElement = helpers.createCustomElement('div', {'className': tableRowClass, 'dataset': {'index': index}});
-        itemKeys.forEach(function(key) {
-            var className = key + ' ' + tableBodyCellClass,
-                cell = helpers.appendChild(itemRowElement, 'div', {'className': className});
-            if (key === 'image') {
-                helpers.appendChild(cell, 'img', {'src': item[key], 'alt': 'image'});
-            }
-            else {
-                cell.innerText = item[key];
-            }
-        });
-        return itemRowElement;
+            parentElement.appendChild(sortBtn);
+        }
     }
 
     /**
      * Reindexes item DOM elements
      * @returns {Array} reindexed elements
      */
-    function reindexItemRowElements() {
+    function reindexRowElements() {
         var itemIndex;
-        for (itemIndex = 0; itemIndex < itemElements.length; itemIndex++) {
-            itemElements[itemIndex].dataset.index = itemIndex;
+        for (itemIndex = 0; itemIndex < itemRowElements.length; itemIndex++) {
+            itemRowElements[itemIndex].dataset.index = itemIndex;
         }
-        return itemElements;
+        return itemRowElements;
     }
 
     /**
-     * Creates sort button and subscribes its handler to the event bus.
-     * @param {String} key sorting property
-     * @param {Boolean} asc if true then uses ascending order, otherwise - descending
-     * @param {Object} eventBus app event manager
-     * @returns {Element} created button
+     * Appends a content to the given cell.
+     * @param {String} cellClass class name of the cell to append content to
+     * @param {Object} item an item corresponding to this cell
+     * @param {Element} cell an element corresponding to that item
      */
-    function sortBtn(key, asc, eventBus) {
-        var sortBtn, btnAtts, eventName;
+    function appendContent(cellClass, item, cell) {
+        switch (cellClass) {
+            case 'image':
+                helpers.appendChild(cell, 'img', {'src': item[cellClass], 'alt': 'image'});
+                break;
+            case 'cart':
+                quantityButtons.appendQuantityBtns(cell, item);
+                break;
+            default :
+                cell.innerText = item[cellClass];
+        }
+    }
 
-        eventName = (asc) ? eventBus.sortAscBtnClicked : eventBus.sortDescBtnClicked;
-        btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
-                        : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
-        sortBtn = helpers.createCustomElement('span', btnAtts);
+    /**
+     * Subscribes a function handling sort button click event to the event bus.
+     * @param {Boolean} asc sorting order, if true then ascending, otherwise - descending
+     */
+    function subscribeSortBtnClickHandler(asc) {
+        var eventName = (asc) ? eventBus.eventNames.sortAscBtnClicked : eventBus.eventNames.sortDescBtnClicked;
         eventBus.subscribe(eventName, function(data) {
-            itemElements.sort(function(item1, item2) {
-                var el1val = getItemRowElementValue(item1, data.key),
-                    el2val = getItemRowElementValue(item2, data.key),
+            itemRowElements.sort(function(item1, item2) {
+                var el1val = helpers.getElementValueByClassName(item1, data.key),
+                    el2val = helpers.getElementValueByClassName(item2, data.key),
                     res;
                 res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
                 return (data.asc) ? res : -res;
             });
-            reindexItemRowElements();
-            eventBus.publish(eventBus.refreshPagingEvent, {});
+            reindexRowElements();
+            eventBus.publish(eventBus.eventNames.reloadPagination, {});
         });
-        sortBtn.onclick = function() {
-            eventBus.publish(eventName, {key: key, asc: asc});
-        };
-        return sortBtn;
     }
 
-    /**
-     * Gets an item row element and a cell class name and returns value of that cell.
-     * @param {Element} itemElement a reference to an item row element
-     * @param {String} className class name of a cell of the item row
-     * @returns {*} value of the cell with specified class name
-     */
-    function getItemRowElementValue(itemElement, className) {
-        var val = helpers.getByClassName(itemElement, className).innerText, valNmb;
-        valNmb = parseInt(val, 10);
-        return (isNaN(valNmb)) ? val : valNmb;
-    }
-
-    app.view = {
+    app.catalog = {
         init: init,
-        loadItems: loadItems
+        loadRows: loadItems
     };
-})(app);
+}(app));

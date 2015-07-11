@@ -5,18 +5,25 @@ body  {
     font-size: 62.5%;
     font-family: "Bell MT", "Georgia", serif;
 }
-div, input {
+div {
     padding: 0.2rem 1rem;
     margin: 0.2rem 0.4rem;
     font-size: 0.8rem;
     text-align: center;
 }
-
-input, button {
+input {
+    padding: 0.2rem 1rem;
+    margin: 0.2rem 0.4rem;
+    font-size: 0.8rem;
+    text-align: center;
+    font: inherit;
+    border: 0.05rem solid;
+    border-radius: 0.5rem;
+}
+button {
     font-size: inherit;
     font: inherit;
-    border: 0.05rem solid #ddd;
-    color: #337ab7;
+    border: 0.05rem solid;
     border-radius: 0.5rem;
 }
 .visuallyhidden {
@@ -34,27 +41,20 @@ input, button {
     width: 90%;
     margin: 2rem auto;
 }
-.cart-container {
+.store {
     text-align: center;
-    display: inline-block;
 }
-
-/**************************************************************************************************
- * Module Rules
- **************************************************************************************************/
-/* Items Table */
-.tbody, .thead, .items-table, .tr, .td, .th {
+/* Tables */
+.tbody, .thead, .catalog, .tr, .td, .th {
     padding: 0.2rem 1rem;
     margin: 0.2rem 0.4rem;
     font-size: 0.8rem;
     text-align: center;
 }
-.items-table {
+.catalog {
     margin: 0 auto;
     display: table;
-}
-.items-table .tr:nth-child(even) {
-    background: #f5f5f5;
+    width: 100%;
 }
 .tr {
     display: table-row;
@@ -65,11 +65,17 @@ input, button {
 .thead {
     display: table-header-group;
     font-weight: bold;
-    background: #CAE3FA;
 }
 .td, .th {
     display: table-cell;
-    border: 1px solid #fff;
+    border: 1px solid;
+}
+/**************************************************************************************************
+ * Module Rules
+ **************************************************************************************************/
+/* Catalogue */
+.catalog .tr.sale {
+    font-weight: bold;
 }
 .description {
      width: 20rem;
@@ -85,44 +91,52 @@ input, button {
     height: 1rem;
     cursor: pointer;
 }
-
-
-/* Cart Summary */
-.cart-summary {
+/* Cart Module */
+.cart-container {
     margin-top: 1rem;
     margin-bottom: 0.5rem;
     display: inline-block;
     width: 50%;
     border: 0.05rem dashed #ddd;
 }
+.cart-table {
+    margin: 0 auto;
+    display: inline-block;
+}
 .total-bill {
     border: 0.05rem solid #ddd;
     display: block;
     margin: 0 auto;
 }
+.reset-cart-btn,
+.view-cart-btn,
+.hide-cart-btn {
+    margin: 0.5rem 0 1rem;
+    cursor: pointer;
+}
 
-/* Item Buttons (Add, Remove, Amount) */
+/* Quantity Buttons */
 .item-amount .add,
 .item-amount .remove {
     cursor: pointer;
     padding: 0.2rem 0.3rem;
-    color: #337ab7;
     text-decoration: none;
-    background-color: inherit;
     margin-right: 0.5rem;
     border: none;
 }
 .item-amount .amount {
     width: 2rem;
     padding: 0.05rem 0;
-    background: #CAE3FA;
-    color: #fff;
     border: none;
     margin-right: 1rem;
     margin-left: 0.5rem;
 }
-/* Pages Navigator */
-.pages-nav {
+
+.item-amount .amount[disabled] {
+    border: 0.05rem solid;
+}
+/* Pagination */
+.pagination-list {
     display: inline-block;
     padding: 0;
     margin: 2rem 0;
@@ -141,14 +155,12 @@ input, button {
 .current-page-btn {
     font-weight: bold;
 }
-.pages-nav .page-link {
+.pagination-list .page-link {
     position: relative;
     float: left;
     padding: 0.2rem 0.5rem;
-    margin-left: -1px;
-    color: #337ab7;
-    background-color: #fff;
-    border: 0.05rem solid #ddd;
+    margin-left: -0.05rem;
+    border: 0.05rem solid;
     font-size: 0.8rem;
     text-decoration: none;
     cursor: pointer;
@@ -162,24 +174,76 @@ input, button {
 .current-page {
     font-weight: bold;
 }
-/* Displayed Pages Number Input */
-.items-per-page-input {
+.paging-size {
     display: block;
     margin: 0 auto;
     padding: 0.15rem 0.25rem;
     width: 2rem;
     font-size: 0.7rem;
 }
-/* Reset Cart Button */
-.reset-cart-btn {
-    margin: 0.5rem 0 1rem;
-    background-color: #fff;
-    cursor: pointer;
+/**************************************************************************************************
+ * Theme Rules
+ **************************************************************************************************/
+/* General Rules */
+.catalog .tr:nth-child(even) {
+    background-color: #f5f5f5;
 }
-
+.td, .th {
+    border-color: #fff;
+}
+input,
+button {
+    border-color: #ddd;
+}
+.reset-cart-btn,
+.view-cart-btn,
+.hide-cart-btn {
+    background-color: #fff;
+}
+.item-amount .add,
+.item-amount .remove {
+    background-color: inherit;
+}
+.item-amount .amount {
+    color: #fff;
+}
+.item-amount .amount[disabled] {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+}
+.pagination-list .page-link {
+    background-color: #fff;
+    border-color: #ddd;
+}
+/* Classic Theme */
+.classic-theme input,
+.classic-theme button,
+.classic-theme .item-amount .add,
+.classic-theme .item-amount .remove,
+.classic-theme .pagination-list .page-link {
+    color: #337ab7;
+}
+.classic-theme .thead,
+.classic-theme .item-amount .amount {
+    background-color: #CAE3FA;
+}
+/* Bright Theme */
+.bright-theme input,
+.bright-theme button,
+.bright-theme .item-amount .add,
+.bright-theme .item-amount .remove,
+.bright-theme .pagination-list .page-link {
+    color: #ff0000;
+}
+.bright-theme .thead,
+.bright-theme .item-amount .amount {
+    background-color: #bc8f8f;
+}
 /**************************************************************************************************
  * State Rules
  **************************************************************************************************/
-.reset-cart-btn:hover {
+.reset-cart-btn:hover,
+.view-cart-btn:hover,
+.hide-cart-btn:hover {
     background-color: #ddd;
 }

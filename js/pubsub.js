@@ -37,27 +37,27 @@
     }
 
     app.eventBus = {
-        // Pagination
-        pagingSizeChanged: 'itemsPerPageChanged',
-        pageBtnClicked: 'pageBtnClicked',
-        curPageChanged: 'curPageChanged',
-        // Cart Buttons
-        addItemBtnClicked: 'addItemBtnPressed',
-        removeItemBtnClicked: 'removeItemBtnPressed',
-        // Cart
-        resetItemAmountEvent: 'resetItemAmount',
-        setItemAmountEvent: 'setItemAmountEvent',
-        addItemToCartEvent: 'addItemToCart',
-        removeItemFromCartEvent: 'removeItemFromCart',
-        resetCartBtnClicked: 'resetCart',
-        // Catalogue
-        sortAscBtnClicked: 'sortAsc',
-        sortDescBtnClicked: 'sortDesc',
-        refreshPagingEvent: 'refreshPaging',
-        refreshViewEvent: 'refreshView',
-
         subscribe: subscribe,
         unsubscribe: unsubscribe,
-        publish: publish
+        publish: publish,
+
+        eventNames: {
+            // Pagination
+            pagingSizeChanged: 'pagingSizeChanged',
+            pageBtnClicked: 'pageBtnClicked',
+            curPageChanged: 'curPageChanged',
+            // Cart Buttons
+            resetItemAmount: 'resetItemAmount',
+            setItemAmountInCart: 'setItemCartAmount',
+            addItemToCart: 'addItemToCart',
+            removeItemFromCart: 'removeItemFromCart',
+            // Catalogue
+            sortAscBtnClicked: 'sortAscBtnClicked',
+            sortDescBtnClicked: 'sortDescBtnClicked',
+
+
+            reloadPagination: 'reloadPagination',
+            reloadItems: 'reloadItems'
+        }
     };
-})(app);
+}(app));

@@ -9,15 +9,15 @@
         var app = {};
     </script>
 </head>
-<body>
+<body class="classic-theme">
 <div class="page">
     <header class="page-header">
         <h1>Sprint 3</h1>
     </header>
     <main class="page-content">
-        <article class="cart-container">
+        <article class="store">
             <h2>Online Store</h2>
-            <div class="items-table">
+            <div class="catalog">
                 <div class="thead">
 
                 </div>
@@ -26,21 +26,33 @@
                 </div>
             </div>
             <footer>
-                <div class="cart-summary">
+                <div class="cart-container">
                     <label for="total-bill-id">
                         Total:
                         <input id="total-bill-id" type="number" class="total-bill" value="0" disabled />
                     </label>
+                    <div class="cart-details visuallyhidden">
+                        <div class="cart-table">
+                            <div class="thead">
+
+                            </div>
+                            <div class="tbody">
+
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="hide-cart-btn visuallyhidden">Hide</button>
+                    <button type="button" class="view-cart-btn">View</button>
                     <button type="button" class="reset-cart-btn">Reset</button>
                 </div>
-                <div class="items-per-page">
-                    <label for="items-per-page-input-id">
+                <div class="paging-size-container">
+                    <label for="paging-size-id">
                         Items Per Page:
-                        <input id="items-per-page-input-id" type="number" value="10" class="items-per-page-input" min="5" max="50" />
+                        <input id="paging-size-id" type="number" value="10" class="paging-size" min="5" max="50" />
                     </label>
                 </div>
                 <nav>
-                    <ul class="pages-nav">
+                    <ul class="pagination-list">
                     </ul>
                 </nav>
             </footer>
@@ -51,11 +63,12 @@
 <script src="js/pubsub.js"></script>
 <script src="js/data.js"></script>
 <script src="js/helpers.js"></script>
-
-<script src="js/cartButtons.js"></script>
+<script src="js/quantityButtons.js"></script>
+<script src="js/catalog.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/pagination.js"></script>
-<script src="js/catalog.js"></script>
+
+
 
 <script src="js/main.js"></script>
 
