@@ -10,7 +10,9 @@ var helpers = (function() {
         tableBodyCellClass = 'td',
         tableHeadClass = 'thead',
         tableBodyClass = 'tbody',
-        tableRowClass = 'tr';
+        tableRowClass = 'tr',
+
+        totalBillElement = document.querySelector('.total-bill');
     /**
      * Creates a new DOM element and appends it to the specified parent element.
      * @param {Element} parentElement parent element of the newly created element
@@ -57,23 +59,6 @@ var helpers = (function() {
     }
 
     /**
-     * Appends a header cell to the given head row.
-     * @param {Element} row parent row element
-     * @param {String} headerName name of header cell to be created
-     * @param {Function} appendSortBtns a callback function appending sort buttons to the header cell
-     */
-    function appendHeaderCell(row, headerName, appendSortBtns) {
-        var headerCell,
-            headerCellAttributes =  {
-                'innerText': headerName,
-                'className': tableHeadCellClass + ' ' + headerName
-            };
-        headerCell = appendChild(row, 'div', headerCellAttributes);
-        appendSortBtns(headerCell, headerName, true);
-        appendSortBtns(headerCell, headerName, false);
-    }
-
-    /**
      * Loads header cells to the head of the table.
      * @param {Element} tableElement parent table element
      * @param {Array} headerNames names of header cells to be created
@@ -82,6 +67,24 @@ var helpers = (function() {
     function loadTableHead(tableElement, headerNames, appendSortBtns) {
         var row = createCustomElement('div', {'className': tableRowClass}),
             tableHeadElement = getElementByClassName(tableElement, tableHeadClass);
+
+        /**
+         * Appends a header cell to the given head row.
+         * @param {Element} row parent row element
+         * @param {String} headerName name of header cell to be created
+         * @param {Function} appendSortBtns a callback function appending sort buttons to the header cell
+         */
+        function appendHeaderCell(row, headerName, appendSortBtns) {
+            var headerCell,
+                headerCellAttributes =  {
+                    'innerText': headerName,
+                    'className': tableHeadCellClass + ' ' + headerName
+                };
+            headerCell = appendChild(row, 'div', headerCellAttributes);
+            appendSortBtns(headerCell, headerName, true);
+            appendSortBtns(headerCell, headerName, false);
+        }
+
         headerNames.forEach(function(header) {
             appendHeaderCell(row, header, appendSortBtns);
         });
@@ -129,23 +132,6 @@ var helpers = (function() {
     }
 
     /**
-     * Creates a row element.
-     * @param {Object} obj object corresponding to the row
-     * @param {Number} index row index
-     * @param {Function} appendCellContent function appending content to cells
-     */
-    function createRowElement(keys, obj, index, appendCellContent) {
-        var rowElementClass = tableRowClass + ' ' + obj.type,
-            rowElement = createCustomElement('div', {'className': rowElementClass, 'dataset': {'index': index}});
-        keys.forEach(function(key) {
-            var className = key + ' ' + tableBodyCellClass,
-                cell = appendChild(rowElement, 'div', {'className': className});
-            appendCellContent(key, obj, cell);
-        });
-        return rowElement;
-    }
-
-    /**
      * Creates row elements from objects.
      * @param {Array} objects objects corresponding to rows
      * @param {Array} keys cell names
@@ -153,6 +139,23 @@ var helpers = (function() {
      */
     function createRowElements(objects, keys, appendCellContent) {
         var i, rowElement, rowElements = [];
+        /**
+         * Creates a row element.
+         * @param {Object} obj object corresponding to the row
+         * @param {Number} index row index
+         * @param {Function} appendCellContent function appending content to cells
+         */
+        function createRowElement(keys, obj, index, appendCellContent) {
+            var rowElementClass = tableRowClass + ' ' + obj.type,
+                rowElement = createCustomElement('div', {'className': rowElementClass, 'dataset': {'index': index}});
+            keys.forEach(function(key) {
+                var className = key + ' ' + tableBodyCellClass,
+                    cell = appendChild(rowElement, 'div', {'className': className});
+                appendCellContent(key, obj, cell);
+            });
+            return rowElement;
+        }
+
         for (i = 0; i < objects.length; i++) {
             rowElement = createRowElement(keys, objects[i], i, appendCellContent);
             rowElements.push(rowElement);
@@ -180,6 +183,18 @@ var helpers = (function() {
         }
     }
 
+    /**
+     * Returns total bill value.
+     * @returns {Number} total bill.
+     */
+    function getTotalBillValue() {
+        return parseInt(totalBillElement.value, 10);
+    }
+
+    function setTotalBillValue(value) {
+        totalBillElement.value = value;
+    }
+
     return {
         appendChild: appendChild,
         createCustomElement: createCustomElement,
@@ -194,6 +209,11 @@ var helpers = (function() {
         createRowElements: createRowElements,
 
         hideElement: hideElement,
-        exposeElement: exposeElement
+        exposeElement: exposeElement,
+
+        cart: {
+            getTotalBillValue: getTotalBillValue,
+            setTotalBillValue: setTotalBillValue
+        }
     }
 }());

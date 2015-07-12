@@ -765,8 +765,9 @@
         this.code = code;
     }
 
-    function FreeItemCoupon(itemID) {
-        this.freeItemID = itemID;
+    function FreeItemCoupon(item) {
+        item.price = 0;
+        this.freeItem = item;
     }
 
     function DiscountCoupon(discountValue) {
@@ -802,10 +803,10 @@
                 case 1:
                     FreeItemCoupon.prototype = new Coupon(code);
                     FreeItemCoupon.prototype.constructor = FreeItemCoupon;
-                    coupon = new FreeItemCoupon(Math.floor(Math.random() * items.length));
+                    coupon = new FreeItemCoupon(compoundItems[Math.floor(Math.random() * items.length)]);
                     break;
             }
-            console.log('coupon ' + nmb + ' ' + code);
+            console.log('coupon ' + nmb + ' ' + code + ' ' + coupon.discountValue);
             coupons.push(coupon);
         }
     })();

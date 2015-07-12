@@ -6,9 +6,7 @@
  * Loads cart module into the app.
  */
 (function(app) {
-    var totalBillElement = document.querySelector('.total-bill'),
-
-        couponInputField = document.querySelector('.coupon-input'),
+    var couponInputField = document.querySelector('.coupon-input'),
 
         couponSubmitBtn = document.querySelector('.coupon-submit-btn'),
         resetCartBtn = document.querySelector('.reset-cart-btn'),
@@ -23,16 +21,9 @@
 
         cartTableHeaders,
         couponDiscount = 0,
+        addedCoupons = [],
         coupons,
         addedItems = {};
-
-    /**
-     * Returns total bill value.
-     * @returns {Number} total bill.
-     */
-    function getTotalBillValue() {
-        return parseInt(totalBillElement.value, 10);
-    }
 
     /**
      * Sets item amount of the given item.
@@ -46,9 +37,9 @@
             addedItems[item.id] = itemClone;
         }
         else {
-            totalBillElement.value = getTotalBillValue() - getItemPrice(item) * addedItems[item.id].amount;
+            helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() - getItemPrice(item) * addedItems[item.id].amount);
         }
-        totalBillElement.value = getTotalBillValue() + getItemPrice(item) * amount;
+        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() + getItemPrice(item) * amount);
         addedItems[item.id].amount = amount;
         refreshCart();
     }
@@ -67,7 +58,7 @@
             itemClone.amount = 1;
             addedItems[item.id] = itemClone;
         }
-        totalBillElement.value = getTotalBillValue() + getItemPrice(item);
+        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() + getItemPrice(item));
         refreshCart();
     }
 
@@ -78,7 +69,7 @@
     function removeItemFromCart(data) {
         var item = data.item;
         addedItems[item.id].amount = addedItems[item.id].amount - 1;
-        totalBillElement.value = getTotalBillValue() - getItemPrice(item);
+        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() - getItemPrice(item));
         refreshCart();
     }
 
@@ -91,7 +82,7 @@
             eventBus.publish(eventBus.eventNames.resetItemAmount + id, {});
         };
         addedItems = [];
-        totalBillElement.value = 0;
+        helpers.cart.setTotalBillValue(0);
         refreshCart();
     }
 
@@ -100,7 +91,7 @@
         for (id in addedItems) {
             totalBill += getItemPrice(addedItems[id]);
         };
-        totalBillElement.value = totalBill.toFixed(2);
+        helpers.cart.setTotalBillValue(totalBill.toFixed(2));
     }
     /**
      * Refreshes the cart after an update.
@@ -114,6 +105,7 @@
         };
         rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
         helpers.loadRows(tableElement, rows, 0, items.length);
+        refreshTotalBill();
     }
 
     function getDiscount(item) {
@@ -141,10 +133,11 @@
     function appendContent(cellClass, item, cell) {
         switch (cellClass) {
             case 'total':
-                cell.innerText = String(getItemPrice(item) * item.amount);
+                cell.innerText = String((getItemPrice(item) * item.amount).toFixed(2));
                 break;
             case 'discount':
                 cell.innerText = getDiscount(item);
+                console.log(getDiscount(item));
             default :
                 cell.innerText = item[cellClass];
         }
@@ -194,24 +187,24 @@
         var couponCode, i;
         e.preventDefault();
         couponCode = couponInputField.value;
-        console.log(couponCode);
+        couponInputField.value = '';
+        if (addedCoupons.indexOf(couponCode) > -1) {
+            return;
+        }
+        addedCoupons.push(couponCode);
         for (i = 0; i < coupons.length; i++) {
             if (coupons[i].code == couponCode) {
                 break;
             }
         }
-        if (coupons[i].freeItemID) {
-            // send event to get item
-            // eventBus.publish(eventBus.eventNames.addItemToCart + id)
-            console.log('free item');
+        if (coupons[i].freeItem) {
+            addItemToCart({item: coupons[i].freeItem});
         }
-
         if (coupons[i].discountValue) {
             couponDiscount += coupons[i].discountValue;
             couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
         }
         refreshCart();
-        couponInputField.value = '';
     }
 
     /**

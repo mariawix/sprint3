@@ -243,12 +243,12 @@ button {
 .bright-theme .item-amount .remove,
 .bright-theme .pagination-list .page-link,
 .bright-theme .switch-theme-btn {
-    color: #ff0000;
+    color: #006400;
 }
 .bright-theme .thead,
 .bright-theme .item-amount .amount,
 .bright-theme .switch-theme-btn {
-    background-color: #bc8f8f;
+    background-color: #8FBC8F;
 }
 /**************************************************************************************************
  * State Rules
