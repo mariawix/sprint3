@@ -85,6 +85,16 @@ button {
 .catalog .tr.sale {
     font-weight: bold;
 }
+.image.td {
+    position: relative;
+}
+.catalog .tr img {
+    position: absolute;
+    margin: 0 auto;
+    width: 40%;
+    left: 30%;
+    top: 0.7rem;
+}
 .description {
      width: 20rem;
      text-align: left;

@@ -728,7 +728,7 @@
     }
 
     Item.getItemKeys = function () {
-        return ['id', 'name', 'description', 'image', 'price'];
+        return ['id', 'name', 'description', 'image', 'price', 'discount'];
     };
 
     Item.getBasicItemKeys = function () {
@@ -738,11 +738,13 @@
     function OnSaleItem() {
         Item.apply(this, arguments);
         this.type = 'sale';
+        this.image = "../img/sale-item.ico";
     }
 
     function OutOfStockItem() {
         Item.apply(this, arguments);
         this.type = 'out';
+        this.image = "../img/out-of-stock-item.ico";
     }
 
     function getDiscount() {
@@ -753,7 +755,7 @@
         var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem, Item], compoundItem;
         items.forEach(function(item) {
             nmb = Math.floor(Math.random() * compoundItemConstructors.length);
-            compoundItem = new compoundItemConstructors[nmb](item.id, item.name, item.description, item.image, item.price);
+            compoundItem = new compoundItemConstructors[nmb](item.id, item.name, item.description, "../img/base-item.ico", item.price);
             compoundItem.quantity = (compoundItem instanceof  OutOfStockItem) ? 0 : Math.floor(Math.random() * 5 + 5);
             compoundItem.discount = (compoundItem instanceof OnSaleItem) ? getDiscount() : 0;
             compoundItems.push(compoundItem);
