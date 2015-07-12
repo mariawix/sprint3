@@ -6,18 +6,17 @@
  * Loads cart module into the app.
  */
 (function(app) {
-    var couponInputField = document.querySelector('.coupon-input'),
+    var eventBus = app.eventBus,
 
+        couponInputField = document.querySelector('.coupon-input'),
         couponSubmitBtn = document.querySelector('.coupon-submit-btn'),
         resetCartBtn = document.querySelector('.reset-cart-btn'),
         viewCartBtn = document.querySelector('.view-cart-btn'),
         hideCartBtn = document.querySelector('.hide-cart-btn'),
-
+        couponInputContainer = document.querySelector('.coupon-input-container'),
         cartDetails = document.querySelector('.cart-details'),
         tableElement = document.querySelector('.cart-table'),
-        couponInputContainer = document.querySelector('.coupon-input-container'),
-
-        eventBus = app.eventBus,
+        totalBillElement = document.querySelector('.total-bill'),
 
         cartTableHeaders,
         couponDiscount = 0,
@@ -37,9 +36,9 @@
             addedItems[item.id] = itemClone;
         }
         else {
-            helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() - getItemPrice(item) * addedItems[item.id].amount);
+            setTotalBillValue(getTotalBillValue() - getItemPrice(item) * addedItems[item.id].amount);
         }
-        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() + getItemPrice(item) * amount);
+        setTotalBillValue(getTotalBillValue() + getItemPrice(item) * amount);
         addedItems[item.id].amount = amount;
         refreshCart();
     }
@@ -58,7 +57,7 @@
             itemClone.amount = 1;
             addedItems[item.id] = itemClone;
         }
-        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() + getItemPrice(item));
+        setTotalBillValue(getTotalBillValue() + getItemPrice(item));
         refreshCart();
     }
 
@@ -69,7 +68,7 @@
     function removeItemFromCart(data) {
         var item = data.item;
         addedItems[item.id].amount = addedItems[item.id].amount - 1;
-        helpers.cart.setTotalBillValue(helpers.cart.getTotalBillValue() - getItemPrice(item));
+        setTotalBillValue(getTotalBillValue() - getItemPrice(item));
         refreshCart();
     }
 
@@ -80,9 +79,10 @@
         var id;
         for (id in addedItems) {
             eventBus.publish(eventBus.eventNames.resetItemAmount + id, {});
-        };
+        }
         addedItems = [];
-        helpers.cart.setTotalBillValue(0);
+        addedCoupons = [];
+        setTotalBillValue(0);
         refreshCart();
     }
 
@@ -90,8 +90,8 @@
         var totalBill = 0, id;
         for (id in addedItems) {
             totalBill += getItemPrice(addedItems[id]);
-        };
-        helpers.cart.setTotalBillValue(totalBill.toFixed(2));
+        }
+        setTotalBillValue(totalBill.toFixed(2));
     }
     /**
      * Refreshes the cart after an update.
@@ -102,7 +102,7 @@
             if (addedItems[id].amount > 0) {
                 items.push(addedItems[id]);
             }
-        };
+        }
         rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
         helpers.loadRows(tableElement, rows, 0, items.length);
         refreshTotalBill();
@@ -138,7 +138,8 @@
             case 'discount':
                 cell.innerText = getDiscount(item);
                 console.log(getDiscount(item));
-            default :
+                break;
+            default:
                 cell.innerText = item[cellClass];
         }
     }
@@ -205,6 +206,18 @@
             couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
         }
         refreshCart();
+    }
+
+    /**
+     * Returns total bill value.
+     * @returns {Number} total bill.
+     */
+    function getTotalBillValue() {
+        return parseInt(totalBillElement.value, 10);
+    }
+
+    function setTotalBillValue(value) {
+        totalBillElement.value = value;
     }
 
     /**

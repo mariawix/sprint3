@@ -10,9 +10,7 @@ var helpers = (function() {
         tableBodyCellClass = 'td',
         tableHeadClass = 'thead',
         tableBodyClass = 'tbody',
-        tableRowClass = 'tr',
-
-        totalBillElement = document.querySelector('.total-bill');
+        tableRowClass = 'tr';
     /**
      * Creates a new DOM element and appends it to the specified parent element.
      * @param {Element} parentElement parent element of the newly created element
@@ -183,17 +181,7 @@ var helpers = (function() {
         }
     }
 
-    /**
-     * Returns total bill value.
-     * @returns {Number} total bill.
-     */
-    function getTotalBillValue() {
-        return parseInt(totalBillElement.value, 10);
-    }
 
-    function setTotalBillValue(value) {
-        totalBillElement.value = value;
-    }
 
     return {
         appendChild: appendChild,
@@ -209,11 +197,6 @@ var helpers = (function() {
         createRowElements: createRowElements,
 
         hideElement: hideElement,
-        exposeElement: exposeElement,
-
-        cart: {
-            getTotalBillValue: getTotalBillValue,
-            setTotalBillValue: setTotalBillValue
-        }
+        exposeElement: exposeElement
     }
 }());
