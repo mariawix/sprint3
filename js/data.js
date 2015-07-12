@@ -766,8 +766,9 @@
     }
 
     function FreeItemCoupon(item) {
-        item.price = 0;
-        this.freeItem = item;
+        var itemClone = JSON.parse(JSON.stringify(item));
+        itemClone.price = 0;
+        this.freeItem = itemClone;
     }
 
     function DiscountCoupon(discountValue) {

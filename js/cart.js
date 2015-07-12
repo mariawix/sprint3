@@ -66,6 +66,7 @@
         }
         addedItems = {};
         addedCoupons = [];
+        couponDiscount = 0;
         refreshCart();
     }
 
@@ -75,9 +76,10 @@
     function refreshTotalBill() {
         var totalBill = 0, id;
         for (id in addedItems) {
-            totalBill += getItemPrice(addedItems[id]);
+            totalBill += getItemPrice(addedItems[id]) * addedItems[id].amount;
         }
-        setTotalBillValue(totalBill.toFixed(2));
+        totalBill = totalBill.toFixed(2);
+        setTotalBillValue(totalBill);
     }
     /**
      * Refreshes the cart after an update.

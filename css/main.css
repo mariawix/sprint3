@@ -182,9 +182,6 @@ button {
     display: inline-block;
     list-style-type: none;
 }
-.current-page {
-    font-weight: bold;
-}
 .paging-size {
     display: block;
     margin: 0 auto;
@@ -201,6 +198,9 @@ button {
 }
 .td, .th {
     border-color: #fff;
+}
+.tr.out {
+    color: #808080;
 }
 input,
 button {
