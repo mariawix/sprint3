@@ -1,22 +1,8 @@
-/**
- * Created by mariao on 7/6/15.
- */
-
 /*
  * Loads cart module into the app.
  */
 (function(app) {
     var eventBus = app.eventBus,
-
-        couponInputField = document.querySelector('.coupon-input'),
-        couponSubmitBtn = document.querySelector('.coupon-submit-btn'),
-        resetCartBtn = document.querySelector('.reset-cart-btn'),
-        viewCartBtn = document.querySelector('.view-cart-btn'),
-        hideCartBtn = document.querySelector('.hide-cart-btn'),
-        couponInputContainer = document.querySelector('.coupon-input-container'),
-        cartDetails = document.querySelector('.cart-details'),
-        tableElement = document.querySelector('.cart-table'),
-        totalBillElement = document.querySelector('.total-bill'),
 
         cartTableHeaders,
         couponDiscount = 0,
@@ -25,8 +11,8 @@
         addedItems = {};
 
     /**
-     * Sets item amount of the given item.
-     * @param {Object} data object { item: item, itemAmountElement: amount }
+     * Sets number of items added to the cart to a specfied value..
+     * @param {Object} data object containing an item and its amount.
      */
     function setItemAmount(data) {
         var item = data.item, amount = data.amount, itemClone;
@@ -57,7 +43,6 @@
             itemClone.amount = 1;
             addedItems[item.id] = itemClone;
         }
-        setTotalBillValue(getTotalBillValue() + getItemPrice(item));
         refreshCart();
     }
 
@@ -68,24 +53,25 @@
     function removeItemFromCart(data) {
         var item = data.item;
         addedItems[item.id].amount = addedItems[item.id].amount - 1;
-        setTotalBillValue(getTotalBillValue() - getItemPrice(item));
         refreshCart();
     }
 
     /**
-     * Removes all items from the cart.
+     * Resets the cart.
      */
     function resetCart() {
         var id;
         for (id in addedItems) {
             eventBus.publish(eventBus.eventNames.resetItemAmount + id, {});
         }
-        addedItems = [];
+        addedItems = {};
         addedCoupons = [];
-        setTotalBillValue(0);
         refreshCart();
     }
 
+    /**
+     * Recalculates total order.
+     */
     function refreshTotalBill() {
         var totalBill = 0, id;
         for (id in addedItems) {
@@ -97,17 +83,21 @@
      * Refreshes the cart after an update.
      */
     function refreshCart() {
-        var items = [], rows, id;
+        var items = [], id;
         for (id in addedItems) {
             if (addedItems[id].amount > 0) {
                 items.push(addedItems[id]);
             }
         }
-        rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
-        helpers.loadRows(tableElement, rows, 0, items.length);
+        reloadCartTable(items);
         refreshTotalBill();
     }
 
+    /**
+     * Returns item discount with respect to discount of coupons added so far.
+     * @param {Object} item an item
+     * @returns {*} total discount
+     */
     function getDiscount(item) {
         var discount = item.discount + couponDiscount;
         if (discount > 100) {
@@ -125,41 +115,6 @@
     }
 
     /**
-     * Appends a content to the given cell.
-     * @param {String} cellClass class name of the cell to append content to
-     * @param {Object} item an item corresponding to this cell
-     * @param {Element} cell an element corresponding to that item
-     */
-    function appendContent(cellClass, item, cell) {
-        switch (cellClass) {
-            case 'total':
-                cell.innerText = String((getItemPrice(item) * item.amount).toFixed(2));
-                break;
-            case 'discount':
-                cell.innerText = getDiscount(item);
-                console.log(getDiscount(item));
-                break;
-            default:
-                cell.innerText = item[cellClass];
-        }
-    }
-
-    function appendSortBtn(parentElement, key, asc) {
-        // not supported
-    }
-
-    /**
-     * Hides the cart.
-     * @param {Object} e event
-     */
-    function hideCartBtnHandler(e) {
-        e.preventDefault();
-        helpers.hideElement(hideCartBtn);
-        helpers.hideElement(cartDetails);
-        helpers.hideElement(couponInputContainer);
-        helpers.exposeElement(viewCartBtn);
-    }
-    /**
      * Resets the cart when rest button clicked.
      * @param {Object} e event
      */
@@ -173,10 +128,7 @@
      */
     function viewCartBtnHandler(e) {
         e.preventDefault();
-        helpers.exposeElement(cartDetails);
-        helpers.exposeElement(hideCartBtn);
-        helpers.exposeElement(couponInputContainer);
-        helpers.hideElement(viewCartBtn);
+        exposeCart();
         refreshCart();
     }
 
@@ -187,8 +139,7 @@
     function couponSubmitBtnHandler(e) {
         var couponCode, i;
         e.preventDefault();
-        couponCode = couponInputField.value;
-        couponInputField.value = '';
+        couponCode = popCouponCode();
         if (addedCoupons.indexOf(couponCode) > -1) {
             return;
         }
@@ -208,6 +159,103 @@
         refreshCart();
     }
 
+
+    /**
+     * Initializes the cart.
+     */
+    function init(itemKeys, couponsArray) {
+        cartTableHeaders = itemKeys.concat('amount', 'discount', 'total');
+        coupons = couponsArray;
+        initCartTable();
+        addEventListeners();
+    }
+
+    app.cart = {
+        init: init
+    };
+
+    /**************************************************************************************************
+     *                                              Cart UI Manipulations
+     **************************************************************************************************/
+    var couponSubmitBtn = document.querySelector('.coupon-submit-btn'),
+        resetCartBtn = document.querySelector('.reset-cart-btn'),
+        viewCartBtn = document.querySelector('.view-cart-btn'),
+        hideCartBtn = document.querySelector('.hide-cart-btn');
+
+    function addEventListeners() {
+
+        hideCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideCart();
+        });
+        resetCartBtn.addEventListener('click', resetCartBtnHandler);
+        viewCartBtn.addEventListener('click', viewCartBtnHandler);
+        couponSubmitBtn.addEventListener('click', couponSubmitBtnHandler);
+
+        eventBus.subscribe(eventBus.eventNames.addItemToCart, addItemToCart);
+        eventBus.subscribe(eventBus.eventNames.removeItemFromCart, removeItemFromCart);
+        eventBus.subscribe(eventBus.eventNames.setItemAmountInCart, setItemAmount);
+    }
+
+    /**************************************************************************************************
+     *                                              Cart DOM Helpers
+     **************************************************************************************************/
+    var couponInputField = document.querySelector('.coupon-input'),
+        couponInputContainer = document.querySelector('.coupon-input-container'),
+        cartDetails = document.querySelector('.cart-details'),
+        tableElement = document.querySelector('.cart-table'),
+        totalBillElement = document.querySelector('.total-bill');
+
+    function initCartTable() {
+        helpers.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
+    }
+
+    function reloadCartTable(items) {
+        var rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
+        helpers.loadRows(tableElement, rows, 0, items.length);
+    }
+    /**
+     * Appends a content to the given cell.
+     * @param {String} cellClass class name of the cell to append content to
+     * @param {Object} item an item corresponding to this cell
+     * @param {Element} cell an element corresponding to that item
+     */
+    function appendContent(cellClass, item, cell) {
+        switch (cellClass) {
+            case 'total':
+                cell.innerText = String((getItemPrice(item) * item.amount).toFixed(2));
+                break;
+            case 'discount':
+                cell.innerText = getDiscount(item);
+                break;
+            default:
+                cell.innerText = item[cellClass];
+        }
+    }
+
+    function hideCart() {
+        helpers.hideElement(hideCartBtn);
+        helpers.hideElement(cartDetails);
+        helpers.hideElement(couponInputContainer);
+        helpers.exposeElement(viewCartBtn);
+    }
+
+    function exposeCart() {
+        helpers.exposeElement(cartDetails);
+        helpers.exposeElement(hideCartBtn);
+        helpers.exposeElement(couponInputContainer);
+        helpers.hideElement(viewCartBtn);
+    }
+
+    function appendSortBtn(parentElement, key, asc) {
+        // not supported
+    }
+
+    function popCouponCode() {
+        var couponCode = couponInputField.value;
+        couponInputField.value = '';
+        return couponCode;
+    }
     /**
      * Returns total bill value.
      * @returns {Number} total bill.
@@ -220,26 +268,4 @@
         totalBillElement.value = value;
     }
 
-    /**
-     * Initializes the cart.
-     */
-    function init(itemKeys, couponsArray) {
-        cartTableHeaders = itemKeys.concat('amount', 'discount', 'total');
-        coupons = couponsArray;
-
-        helpers.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
-
-        hideCartBtn.addEventListener('click', hideCartBtnHandler);
-        resetCartBtn.addEventListener('click', resetCartBtnHandler);
-        viewCartBtn.addEventListener('click', viewCartBtnHandler);
-        couponSubmitBtn.addEventListener('click', couponSubmitBtnHandler);
-
-        eventBus.subscribe(eventBus.eventNames.addItemToCart, addItemToCart);
-        eventBus.subscribe(eventBus.eventNames.removeItemFromCart, removeItemFromCart);
-        eventBus.subscribe(eventBus.eventNames.setItemAmountInCart, setItemAmount);
-    }
-
-    app.cart = {
-        init: init
-    };
 }(app));

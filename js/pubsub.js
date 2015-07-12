@@ -1,5 +1,5 @@
 /**
- * Loads event manager to the app
+ * Loads event manager to the app.
  */
 (function PubSub(app) {
     /* {

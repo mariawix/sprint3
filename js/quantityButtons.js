@@ -1,6 +1,3 @@
-/**
- * Created by mariao on 7/7/15.
- */
 var quantityButtons = (function() {
 
     var quantityBtnsContainerClass = 'item-amount',

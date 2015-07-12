@@ -1,8 +1,4 @@
 /**
- * Created by mariao on 7/6/15.
- */
-
-/**
  * Loads pagination module into the app.
  */
 (function (app) {

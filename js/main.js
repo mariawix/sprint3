@@ -1,8 +1,3 @@
-/**
- * Created by mariao on 6/29/15.
- */
-
-
 (function (app) {
     "use strict";
 
