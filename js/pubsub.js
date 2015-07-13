@@ -42,22 +42,22 @@
         publish: publish,
 
         eventNames: {
-            // Pagination
+            // publisher: pagination
             pagingSizeChanged: 'pagingSizeChanged',
             pageBtnClicked: 'pageBtnClicked',
             curPageChanged: 'curPageChanged',
-            // Cart Buttons
+            reloadItems: 'reloadItems',
+            // publisher: cart
             resetItemAmount: 'resetItemAmount',
+            // publisher: quantityButtons
             setItemAmountInCart: 'setItemCartAmount',
             addItemToCart: 'addItemToCart',
             removeItemFromCart: 'removeItemFromCart',
-            // Catalogue
+            // publisher: catalogue
             sortAscBtnClicked: 'sortAscBtnClicked',
             sortDescBtnClicked: 'sortDescBtnClicked',
-
-
-            reloadPagination: 'reloadPagination',
-            reloadItems: 'reloadItems'
+            reloadPagination: 'reloadPagination'
+            // + curPageChanged
         }
     };
 }(app));

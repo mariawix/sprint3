@@ -6,10 +6,6 @@ var quantityButtons = (function() {
         removeFromCartBtnClass = 'remove',
 
         eventBus;
-
-    function setEventManager(eventManager) {
-        eventBus = eventManager;
-    }
     /**
      * Creates add to cart button
      * @param {Object} data data object passed to event handlers: item and its amount
@@ -84,6 +80,9 @@ var quantityButtons = (function() {
         data = {"itemAmountElement": itemAmountElement, 'item': item};
         container.appendChild(createAddBtn(data));
         container.appendChild(createRemoveBtn(data));
+    }
+    function setEventManager(eventManager) {
+        eventBus = eventManager;
     }
 
     return {

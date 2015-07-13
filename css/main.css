@@ -17,7 +17,7 @@ input {
     font-size: 0.8rem;
     text-align: center;
     font: inherit;
-    border: 0.05rem solid;
+    border: 1px solid;
     border-radius: 0.5rem;
 }
 button {
@@ -26,7 +26,7 @@ button {
     font-size: inherit;
     cursor: pointer;
     font: inherit;
-    border: 0.05rem solid;
+    border: 1px solid;
     border-radius: 0.5rem;
 }
 .visuallyhidden {
@@ -34,7 +34,8 @@ button {
     overflow: hidden;
     clip: rect(0 0 0 0);
     height: 1px; width: 1px;
-    margin: -1px; padding: 0; border: 0;
+    margin: -1px; padding: 0;
+    border: 0;
     text-align: left;
 }
 /**************************************************************************************************
@@ -115,14 +116,14 @@ button {
     margin-bottom: 0.5rem;
     display: inline-block;
     width: 50%;
-    border: 0.05rem dashed #ddd;
+    border: 1px dashed #ddd;
 }
 .cart-table {
     margin: 0 auto;
     display: inline-block;
 }
 .total-bill {
-    border: 0.05rem solid #ddd;
+    border: 1px solid #ddd;
     display: block;
     margin: 0 auto;
 }
@@ -154,7 +155,7 @@ button {
 }
 
 .item-amount .amount[disabled] {
-    border: 0.05rem solid;
+    border: 1px solid;
 }
 /* Pagination */
 .pagination-list {
@@ -181,7 +182,7 @@ button {
     float: left;
     padding: 0.2rem 0.5rem;
     margin-left: -0.05rem;
-    border: 0.05rem solid;
+    border: 1px solid;
     font-size: 0.8rem;
     text-decoration: none;
     cursor: pointer;

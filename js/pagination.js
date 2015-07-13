@@ -37,6 +37,68 @@
         }
     }
 
+
+    /**
+     * Loads pagination bar.
+     * @param {Number} curPage index of displayed page
+     * @param {Number} itemsNmb total number of items
+     */
+    function loadPaginationBar(curPage, itemsNmb) {
+        var pageNmb, btn,
+            pagingFragment = document.createDocumentFragment(),
+            pagingSizeValue = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
+        paginationListElement.innerHTML = "";
+        // TODO: unsubscribe handlers
+        for (pageNmb = 1; (pageNmb - 1) * pagingSizeValue < itemsNmb; pageNmb++) {
+            btn = createPageBtnElement(pageNmb === curPage, pageNmb, pagingSizeValue);
+            pagingFragment.appendChild(btn);
+            pageBtnHandler(btn);
+        }
+        paginationListElement.appendChild(pagingFragment);
+    }
+
+
+    /**************************************************************************************************
+     *                                          Pagination UI Manipulations
+     **************************************************************************************************/
+    /**
+     * Initializes pagination module.
+     */
+    function init(itemsNmb) {
+        eventBus.subscribe(eventBus.eventNames.curPageChanged, function (curPageNmb) {
+            helpers.getElementByClassName(paginationListElement, curPageBtnClass).classList.remove(curPageBtnClass);
+            helpers.getElementByClassName(paginationListElement, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
+        });
+
+        eventBus.subscribe(eventBus.eventNames.reloadPagination, function() {
+            eventBus.publish(eventBus.eventNames.reloadItems, getPagingSize());
+        });
+
+        loadPaginationBar(1, itemsNmb);
+        handlePagingSizeElement(itemsNmb);
+    }
+    /**************************************************************************************************
+     *                                          Pagination DOM Helpers
+     **************************************************************************************************/
+    /**
+     * Returns number of the currently displayed page.
+     * @returns {Number} index of the current page
+     */
+    function getCurPageNmb() {
+        var curPageBtn, curPageLink, curPageNmb;
+        curPageBtn = helpers.getElementByClassName(paginationListElement, curPageBtnClass);
+        curPageLink = helpers.getElementByClassName(curPageBtn, pageLinkClass);
+        curPageNmb = parseInt(curPageLink.innerText, 10);
+        return isNaN(curPageNmb) ? 1 : curPageNmb;
+    }
+    /**
+     * Returns number of items displayed on a single page.
+     * @returns {Number} number of items displayed on a single page.
+     */
+    function getPagingSize() {
+        return parseInt(pagingSizeElement.value, 10);
+    }
+
     /**
      * Creates a page button.
      * @param {Boolean} curPage true if created button corresponds to the currently selected page, false - otherwise.
@@ -60,63 +122,6 @@
         helpers.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageIndex});
         return btn;
     }
-
-    /**
-     * Loads pagination bar.
-     * @param {Number} curPage index of displayed page
-     * @param {Number} itemsNmb total number of items
-     */
-    function loadPaginationBar(curPage, itemsNmb) {
-        var pageNmb, btn,
-            pagingFragment = document.createDocumentFragment(),
-            pagingSizeValue = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
-        paginationListElement.innerHTML = "";
-        // TODO: unsubscribe handlers
-        for (pageNmb = 1; (pageNmb - 1) * pagingSizeValue < itemsNmb; pageNmb++) {
-            btn = createPageBtnElement(pageNmb === curPage, pageNmb, pagingSizeValue);
-            pagingFragment.appendChild(btn);
-            pageBtnHandler(btn);
-        }
-        paginationListElement.appendChild(pagingFragment);
-    }
-
-    /**
-     * Returns number of the currently displayed page.
-     * @returns {Number} index of the current page
-     */
-    function getCurPageNmb() {
-        var curPageBtn, curPageLink, curPageNmb;
-        curPageBtn = helpers.getElementByClassName(paginationListElement, curPageBtnClass);
-        curPageLink = helpers.getElementByClassName(curPageBtn, pageLinkClass);
-        curPageNmb = parseInt(curPageLink.innerText, 10);
-        return isNaN(curPageNmb) ? 1 : curPageNmb;
-    }
-
-    /**
-     * Returns number of items displayed on a single page.
-     * @returns {Number} number of items displayed on a single page.
-     */
-    function getPagingSize() {
-        return parseInt(pagingSizeElement.value, 10);
-    }
-
-    /**
-     * Initializes pagination module.
-     */
-    function init(itemsNmb) {
-        eventBus.subscribe(eventBus.eventNames.curPageChanged, function (curPageNmb) {
-            helpers.getElementByClassName(paginationListElement, curPageBtnClass).classList.remove(curPageBtnClass);
-            helpers.getElementByClassName(paginationListElement, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
-        });
-
-        eventBus.subscribe(eventBus.eventNames.reloadPagination, function() {
-            eventBus.publish(eventBus.eventNames.reloadItems, getPagingSize());
-        });
-
-        loadPaginationBar(1, itemsNmb);
-        handlePagingSizeElement(itemsNmb);
-    }
-
     app.pagination = {
         init: init,
         getPagingSize: getPagingSize

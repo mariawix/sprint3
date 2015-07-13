@@ -716,16 +716,35 @@
      * @param {Number} price item price
      * @constructor
      */
-    function Item(id, name, description, image, price) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.image = image;
-        this.price = price;
-        this.type = 'base';
-        this.quantity = 0;
-        this.discount = 0;
+    function Item(id, name, description, price, img, t, q, d) {
+        var id = id;
+        var name = name;
+        var description = description;
+        var price = price;
+        var image = img || "../img/base-item.ico";
+        var type = t || 'base';
+        var quantity = (q === 0) ? q : (q || getRandomQuantity());
+        var discount = d || 0;
+        Object.defineProperties(this, {
+            'id': { get: function () { return id; } },
+            'name': {   get: function () { return name; } },
+            'description': { get: function () { return description; } },
+            'image': {  get: function () { return image; } },
+            'price': {  get: function () { return price; } },
+            'type': {   get: function () { return type; } },
+            'quantity': {   get: function () { return quantity; } },
+            'discount': {   get: function () { return discount; } }
+        });
+        this.getItemClone = function() {
+            var i, itemClone = {}, propertyNames = Object.getOwnPropertyNames(this), propertyName;
+            for (i = 0; i < propertyNames.length; i++) {
+                propertyName = propertyNames[i];
+                itemClone[propertyName] = this[propertyName];
+            }
+            return itemClone;
+        };
     }
+
 
     Item.getItemKeys = function () {
         return ['id', 'name', 'description', 'image', 'price', 'discount'];
@@ -735,46 +754,56 @@
         return ['id', 'name', 'price'];
     };
 
-    function OnSaleItem() {
-        Item.apply(this, arguments);
-        this.type = 'sale';
-        this.image = "../img/sale-item.ico";
+    function OnSaleItem(id, name, description, price) {
+        Item.apply(this, [id, name, description, price, "../img/sale-item.ico", 'sale', getRandomQuantity(), getRandomDiscount()]);
     }
 
-    function OutOfStockItem() {
-        Item.apply(this, arguments);
-        this.type = 'out';
-        this.image = "../img/out-of-stock-item.ico";
+    function OutOfStockItem(id, name, description, price) {
+        Item.apply(this, [id, name, description, price, "../img/out-of-stock-item.ico", 'out', 0, 0]);
     }
 
-    function getDiscount() {
+    function getRandomDiscount() {
         return Math.floor(Math.random() * 7 + 1) * 10;
     }
 
+    function getRandomQuantity() {
+        return Math.floor(Math.random() * 5 + 5);
+    }
+
     (function() {
-        var nmb, compoundItemConstructors = [OnSaleItem, OutOfStockItem, Item], compoundItem;
+        var nmb, compoundItem, itemConstructors = [Item, OnSaleItem, OutOfStockItem];
         items.forEach(function(item) {
-            nmb = Math.floor(Math.random() * compoundItemConstructors.length);
-            compoundItem = new compoundItemConstructors[nmb](item.id, item.name, item.description, "../img/base-item.ico", item.price);
-            compoundItem.quantity = (compoundItem instanceof  OutOfStockItem) ? 0 : Math.floor(Math.random() * 5 + 5);
-            compoundItem.discount = (compoundItem instanceof OnSaleItem) ? getDiscount() : 0;
+            nmb = Math.floor(Math.random() * 3);
+            compoundItem = new itemConstructors[nmb](item.id, item.name, item.description, item.price);
             compoundItems.push(compoundItem);
         });
     })();
 
 
-    function Coupon(code) {
-        this.code = code;
+    function Coupon(code, type) {
+        var code = code;
+        var type = type;
+        this.getCode = function() {
+            return code;
+        };
+        this.getType = function() {
+            return type;
+        };
     }
 
     function FreeItemCoupon(item) {
-        var itemClone = JSON.parse(JSON.stringify(item));
-        itemClone.price = 0;
-        this.freeItem = itemClone;
+        this.getFreeItem = function() {
+            var itemClone = item.getItemClone();
+            itemClone.discount = 100;
+            return itemClone;
+        }
     }
 
     function DiscountCoupon(discountValue) {
-        this.discountValue = discountValue;
+        var discountValue = discountValue;
+        this.getDiscountValue = function() {
+            return discountValue;
+        };
     }
 
     (function() {
@@ -799,21 +828,23 @@
             nmb = Math.floor(Math.random() * 2);
             switch (nmb) {
                 case 0:
-                    DiscountCoupon.prototype = new Coupon(code);
+                    DiscountCoupon.prototype = new Coupon(code, 'discount');
                     DiscountCoupon.prototype.constructor = DiscountCoupon;
-                    coupon = new DiscountCoupon(getDiscount());
+                    coupon = new DiscountCoupon(getRandomDiscount());
                     break;
                 case 1:
-                    FreeItemCoupon.prototype = new Coupon(code);
+                    FreeItemCoupon.prototype = new Coupon(code, 'free-item');
                     FreeItemCoupon.prototype.constructor = FreeItemCoupon;
                     coupon = new FreeItemCoupon(compoundItems[Math.floor(Math.random() * items.length)]);
                     break;
             }
-            console.log('coupon ' + nmb + ' ' + code + ' ' + coupon.discountValue);
+            if (coupon instanceof DiscountCoupon)
+                console.log('coupon ' + nmb + ' ' + code + ' discount ' + coupon.getDiscountValue());
+            else
+                console.log('coupon ' + nmb + ' ' + code + ' freeItemID ' + coupon.getFreeItem().id);
             coupons.push(coupon);
         }
     })();
-
 
     app.data = {
         getItems: function () {

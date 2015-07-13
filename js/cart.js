@@ -11,13 +11,13 @@
         addedItems = {};
 
     /**
-     * Sets number of items added to the cart to a specfied value..
-     * @param {Object} data object containing an item and its amount.
+     * Sets number of items added to the cart to a specified value.
+     * @param {Object} data object {item: item, amount: amount}.
      */
     function setItemAmount(data) {
         var item = data.item, amount = data.amount, itemClone;
         if (!addedItems[item.id]) {
-            itemClone = JSON.parse(JSON.stringify(item));
+            itemClone = item.getItemClone();
             itemClone.amount = amount;
             addedItems[item.id] = itemClone;
         }
@@ -29,26 +29,26 @@
         refreshCart();
     }
 
+
+
     /**
      * Adds a new item into the cart.
-     * @param {Object} data object containing item to be added.
+     * @param {Object} data object {item: item, amount: amount}.
      */
     function addItemToCart(data) {
         var item = data.item, itemClone;
-        if (addedItems[item.id]) {
-            addedItems[item.id].amount++;
-        }
-        else {
-            itemClone = JSON.parse(JSON.stringify(item));
-            itemClone.amount = 1;
+        if (!addedItems[item.id]) {
+            itemClone = item.getItemClone();
+            itemClone.amount = 0;
             addedItems[item.id] = itemClone;
         }
+        addedItems[item.id].amount++;
         refreshCart();
     }
 
     /**
      * Removes an item from the cart.
-     * @param {Object} data object containing item to be removed.
+     * @param {Object} data object {item: item, amount: amount}.
      */
     function removeItemFromCart(data) {
         var item = data.item;
@@ -71,7 +71,7 @@
     }
 
     /**
-     * Recalculates total order.
+     * Recalculates total bill.
      */
     function refreshTotalBill() {
         var totalBill = 0, id;
@@ -117,7 +117,7 @@
     }
 
     /**
-     * Resets the cart when rest button clicked.
+     * Resets the cart when reset button clicked.
      * @param {Object} e event
      */
     function resetCartBtnHandler(e) {
@@ -147,20 +147,19 @@
         }
         addedCoupons.push(couponCode);
         for (i = 0; i < coupons.length; i++) {
-            if (coupons[i].code == couponCode) {
+            if (coupons[i].getCode() == couponCode) {
                 break;
             }
         }
-        if (coupons[i].freeItem) {
-            addItemToCart({item: coupons[i].freeItem});
+        if (coupons[i].getType() === 'free-item') {
+            addItemToCart({item: coupons[i].getFreeItem()});
         }
-        if (coupons[i].discountValue) {
-            couponDiscount += coupons[i].discountValue;
+        else {
+            couponDiscount += coupons[i].getDiscountValue();
             couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
         }
         refreshCart();
     }
-
 
     /**
      * Initializes the cart.
@@ -184,8 +183,10 @@
         viewCartBtn = document.querySelector('.view-cart-btn'),
         hideCartBtn = document.querySelector('.hide-cart-btn');
 
+    /**
+     * Adds all cart event handlers.
+     */
     function addEventListeners() {
-
         hideCartBtn.addEventListener('click', function(e) {
             e.preventDefault();
             hideCart();
@@ -208,14 +209,22 @@
         tableElement = document.querySelector('.cart-table'),
         totalBillElement = document.querySelector('.total-bill');
 
+    /**
+     * Initializes the cart table.
+     */
     function initCartTable() {
         helpers.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
     }
 
+    /**
+     * Reloads the cart table.
+     * @param {Array} items items added to the cart so far.
+     */
     function reloadCartTable(items) {
         var rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
         helpers.loadRows(tableElement, rows, 0, items.length);
     }
+
     /**
      * Appends a content to the given cell.
      * @param {String} cellClass class name of the cell to append content to
@@ -235,6 +244,9 @@
         }
     }
 
+    /**
+     * Hides the cart.
+     */
     function hideCart() {
         helpers.hideElement(hideCartBtn);
         helpers.hideElement(cartDetails);
@@ -242,6 +254,9 @@
         helpers.exposeElement(viewCartBtn);
     }
 
+    /**
+     * Shows the cart.
+     */
     function exposeCart() {
         helpers.exposeElement(cartDetails);
         helpers.exposeElement(hideCartBtn);
@@ -253,6 +268,10 @@
         // not supported
     }
 
+    /**
+     * Returns coupon code entered by user and clears coupon enter field.
+     * @returns {String} coupon code
+     */
     function popCouponCode() {
         var couponCode = couponInputField.value;
         couponInputField.value = '';
@@ -266,6 +285,10 @@
         return parseInt(totalBillElement.value, 10);
     }
 
+    /**
+     * Sets total bill value
+     * @param value new value
+     */
     function setTotalBillValue(value) {
         totalBillElement.value = value;
     }
