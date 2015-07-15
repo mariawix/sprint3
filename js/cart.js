@@ -8,13 +8,13 @@
         couponTypes,
         getItemClone,
 
-        cartTableHeaders,
+        itemsTableHeaders,
         couponDiscount = 0,
         addedCoupons = [],
         addedItems = {};
 
     /**
-     * Sets number of items added to the cart to a specified value.
+     * Sets number of items added to the cart to the specified value.
      * @param {Object} data object {item: item, amount: amount}.
      */
     function setItemAmount(data) {
@@ -95,12 +95,13 @@
             }
         }
         reloadCartTable(items);
+        reloadCouponTable(addedCoupons);
         refreshTotalBill();
     }
 
     /**
-     * Returns item discount with respect to discount of coupons added so far.
-     * @param {Object} item an item
+     * Returns item discount with respect to discounts of coupons added so far.
+     * @param {Object} item an item instance
      * @returns {*} total discount
      */
     function getDiscount(item) {
@@ -112,7 +113,7 @@
     }
     /**
      * Returns item price after discount.
-     * @param {Item} item an item
+     * @param {Item} item an item instance
      * @returns {number} item price after discount
      */
     function getItemPrice(item) {
@@ -120,26 +121,36 @@
     }
 
     /**
-     * Validates coupon submitted by user and updates the cart accordingly.
+     * Returns coupon object by coupon code
+     * @param {String} couponCode id of a coupon
+     * @returns {*} coupon object with this id
      */
-    function addCoupon() {
-        var couponCode, i;
-        couponCode = popCouponCode();
-        if (addedCoupons.indexOf(couponCode) > -1) {
-            return;
-        }
-        addedCoupons.push(couponCode);
+    function getCouponByID(couponCode) {
+        var i;
         for (i = 0; i < coupons.length; i++) {
             if (coupons[i].getCode() == couponCode) {
                 break;
             }
         }
-        if (coupons[i]) {
-            if (coupons[i] instanceof couponTypes.FreeItemCoupon) {
-                addItemToCart({item: coupons[i].getFreeItem()});
+        return coupons[i];
+    }
+    /**
+     * Validates coupon submitted by user and updates the cart accordingly.
+     */
+    function addCoupon() {
+        var couponCode, coupon;
+        couponCode = popCouponCode();
+        if (addedCoupons.indexOf(couponCode) > -1) {
+            return;
+        }
+        addedCoupons.push(couponCode);
+        coupon = getCouponByID(couponCode);
+        if (coupon) {
+            if (coupon instanceof couponTypes.FreeItemCoupon) {
+                addItemToCart({item: coupon.getFreeItem()});
             }
             else {
-                couponDiscount += coupons[i].getDiscountValue();
+                couponDiscount += coupon.getDiscountValue();
                 couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
             }
         }
@@ -150,11 +161,11 @@
      * Initializes the cart.
      */
     function init(itemsData, couponsData) {
-        cartTableHeaders = itemsData.basicItemKeys.concat('amount', 'discount', 'total');
+        itemsTableHeaders = itemsData.basicItemKeys.concat('amount', 'discount', 'total');
         coupons = couponsData.coupons;
         getItemClone = itemsData.getItemClone;
         couponTypes = couponsData.couponTypes;
-        initCartTable();
+        initTables();
         addEventListeners();
     }
 
@@ -203,14 +214,18 @@
     var couponInputField = document.querySelector('.coupon-input'),
         couponInputContainer = document.querySelector('.coupon-input-container'),
         cartDetails = document.querySelector('.cart-details'),
-        tableElement = document.querySelector('.cart-table'),
-        totalBillElement = document.querySelector('.total-bill');
+        itemsTableElement = document.querySelector('.cart-table'),
+        couponTableElement = document.querySelector('.coupon-table'),
+        totalBillElement = document.querySelector('.total-bill'),
+
+        couponTableHeaders = ['code', 'details'];
 
     /**
-     * Initializes the cart table.
+     * Initializes cart tables.
      */
-    function initCartTable() {
-        view.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
+    function initTables() {
+        view.loadTableHead(itemsTableElement, itemsTableHeaders, appendSortBtn);
+        view.loadTableHead(couponTableElement, couponTableHeaders, appendSortBtn);
     }
 
     /**
@@ -218,17 +233,16 @@
      * @param {Array} items items added to the cart so far.
      */
     function reloadCartTable(items) {
-        var rows = view.createRowElements(items, cartTableHeaders, appendContent);
-        view.loadRows(tableElement, rows, 0, items.length);
+        var rows = view.createRowElements(items, itemsTableHeaders, appendCartTableCellContent);
+        view.loadRows(itemsTableElement, rows, 0, items.length);
     }
-
     /**
-     * Appends a content to the given cell.
+     * Appends a content to the given cart table cell.
      * @param {String} cellClass class name of the cell to append content to
-     * @param {Object} item an item corresponding to this cell
+     * @param {Object} item an item object corresponding to this cell
      * @param {Element} cell an element corresponding to that item
      */
-    function appendContent(cellClass, item, cell) {
+    function appendCartTableCellContent(cellClass, item, cell) {
         switch (cellClass) {
             case 'total':
                 cell.innerText = String((getItemPrice(item) * item.amount).toFixed(2));
@@ -240,25 +254,54 @@
                 cell.innerText = item[cellClass];
         }
     }
+    /**
+     * Reloads the coupon table.
+     * @param {Array} addedCoupons IDes of the coupons added by user
+     */
+    function reloadCouponTable(addedCoupons) {
+        var couponObjs = [], rows;
+        addedCoupons.forEach(function(id) {
+            couponObjs.push(getCouponByID(id));
+        });
+        rows = view.createRowElements(couponObjs, couponTableHeaders, appendCouponTableCellContent);
+        view.loadRows(couponTableElement, rows, 0, couponObjs.length);
+    }
+    /**
+     * Appends a content to the given coupon table cell.
+     * @param {String} cellClass class name of the cell to append content to
+     * @param {Object} coupon coupon object corresponding to this cell
+     * @param {Element} cell an element corresponding to that coupon
+     */
+    function appendCouponTableCellContent(cellClass, coupon, cell) {
+        switch (cellClass) {
+            case 'code':
+                cell.innerText = coupon.getCode();
+                break;
+            default:
+                if (coupon instanceof couponTypes.FreeItemCoupon) {
+                    cell.innerText = 'Free item ID: ' + coupon.getFreeItem().id;
+                }
+                else {
+                    cell.innerText = 'Discount val: ' + coupon.getDiscountValue();
+                }
+        }
+
+    }
 
     /**
      * Hides the cart.
      */
     function hideCart() {
-        view.hideElement(hideCartBtn);
-        view.hideElement(cartDetails);
-        view.hideElement(couponInputContainer);
-        view.exposeElement(viewCartBtn);
+        view.hideElements([hideCartBtn, cartDetails, couponInputContainer]);
+        view.exposeElements([viewCartBtn]);
     }
 
     /**
      * Shows the cart.
      */
     function exposeCart() {
-        view.exposeElement(cartDetails);
-        view.exposeElement(hideCartBtn);
-        view.exposeElement(couponInputContainer);
-        view.hideElement(viewCartBtn);
+        view.exposeElements([cartDetails, hideCartBtn, couponInputContainer]);
+        view.hideElements([viewCartBtn]);
     }
 
     function appendSortBtn(parentElement, key, asc) {

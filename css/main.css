@@ -5,6 +5,9 @@ body  {
     font-size: 62.5%;
     font-family: "Bell MT", "Georgia", serif;
 }
+h2 {
+    font-size: 0.8rem;
+}
 div {
     padding: 0.2rem 1rem;
     margin: 0.2rem 0.4rem;
@@ -118,7 +121,8 @@ button {
     width: 50%;
     border: 1px dashed #ddd;
 }
-.cart-table {
+.cart-table,
+.coupon-table {
     margin: 0 auto;
     display: inline-block;
 }

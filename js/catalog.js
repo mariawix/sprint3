@@ -14,6 +14,7 @@
     /**
      * Creates item row elements, initializes the table and subscribes event handlers to the event bus.
      * @param {Array} items item objects
+     * @param {Array} itemKeys keys of the item objects
      */
     function init(items, itemKeys) {
         var headers = itemKeys.concat('cart');
@@ -22,10 +23,10 @@
         subscribeCatalogEventHandlers();
     }
     /**
-     * Reindexes item DOM elements
+     * Reindexes item row elements
      * @returns {Array} reindexed elements
      */
-    function reindexRowElements() {
+    function reindexItemRowElements() {
         var itemIndex;
         for (itemIndex = 0; itemIndex < itemRowElements.length; itemIndex++) {
             itemRowElements[itemIndex].dataset.index = itemIndex;
@@ -59,7 +60,7 @@
             res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
             return (data.asc) ? res : -res;
         });
-        reindexRowElements();
+        reindexItemRowElements();
         eventBus.publish(eventBus.eventNames.reloadPagination, {});
     }
     /**************************************************************************************************
@@ -74,7 +75,7 @@
         view.loadRows(tableElement, itemRowElements, firstIndex, endIndex);
     }
     /**
-     * Appends a sort button to a given element.
+     * Appends a sort button to the given element.
      * @param {Element} parentElement a parent element to append the button to
      * @param {String} key sorting property
      * @param {Boolean} asc sorting order, if true then ascending, otherwise - descending
@@ -86,12 +87,14 @@
             btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
                             : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
             sortBtn = view.createCustomElement('span', btnAtts);
-            addSortBtnHandler(sortBtn, eventName, key, asc);
+            sortBtn.onclick = function () {
+                eventBus.publish(eventName, {key: key, asc: asc});
+            };
             parentElement.appendChild(sortBtn);
         }
     }
     /**
-     * Given a cell and its class appends appropriate content to that cell.
+     * Given a cell and the columns name containing it appends appropriate content to that cell.
      * @param {String} cellClass class name of the cell to append content to
      * @param {Object} item an item corresponding to this cell
      * @param {Element} cell an element corresponding to that item
@@ -111,11 +114,6 @@
     /**************************************************************************************************
      *                                         Catalogue UI Manipulations
      **************************************************************************************************/
-    function addSortBtnHandler(sortBtn, eventName, key, asc) {
-        sortBtn.onclick = function () {
-            eventBus.publish(eventName, {key: key, asc: asc});
-        };
-    }
     /**
      * Subscribes catalogue event handlers to the event bus.
      */

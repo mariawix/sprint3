@@ -14,6 +14,7 @@
 
     /**
      * Initializes pagination module.
+     * @param {Number} itemsNmb overall number of items
      */
     function init(itemsNmb) {
         subscribePaginationEventHandlers();
@@ -23,7 +24,7 @@
 
     /**
      * Loads pagination bar.
-     * @param {Number} curPage index of displayed page
+     * @param {Number} curPage index of the displayed page
      * @param {Number} itemsNmb total number of items
      */
     function loadPaginationBar(curPage, itemsNmb) {
@@ -46,7 +47,9 @@
     /**************************************************************************************************
      *                                          Pagination UI Manipulations
      **************************************************************************************************/
-
+    /**
+     * Subscribes all pagination related event handlers to the pubsub.
+     */
     function subscribePaginationEventHandlers() {
         eventBus.subscribe(eventBus.eventNames.curPageChanged, function (curPageNmb) {
             view.getElementByClassName(paginationListElement, curPageBtnClass).classList.remove(curPageBtnClass);
@@ -106,11 +109,11 @@
     }
 
     /**
-     * Creates a page button.
-     * @param {Boolean} curPage true if created button corresponds to the currently selected page, false - otherwise.
+     * Creates a page button element.
+     * @param {Boolean} curPage true if created button corresponds to the currently displayed page, false - otherwise.
      * @param {Number} pageIndex page button index
      * @param {Number} pagingSize number of items displayed on a single page
-     * @returns {Element} the created button
+     * @returns {Element} the newly created button
      */
     function createPageBtnElement(curPage, pageIndex, pagingSize) {
         var firstItemIndex = (pageIndex - 1) * pagingSize,
@@ -128,9 +131,9 @@
         view.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageIndex});
         return btn;
     }
+
     app.pagination = {
         init: init,
         getPagingSize: getPagingSize
     };
-
 }(app));

@@ -1,3 +1,6 @@
+/*
+ * Quantity Buttons Helpers
+ */
 var quantityButtons = (function() {
 
     var quantityBtnsContainerClass = 'item-amount',
@@ -8,9 +11,9 @@ var quantityButtons = (function() {
         eventBus = app.eventBus;
 
     /**
-     * Creates add to cart button
-     * @param {Object} data data object passed to event handlers: item and its amount
-     * @returns {Element} add to cart button
+     * Creates an add to cart button.
+     * @param {Object} data object of the form {item: item, itemAmountElement: itemAmountElement}, passed to the click callback
+     * @returns {Element} the newly created button
      */
     function createAddBtn(data) {
         var btn, btnAtts = {'className': addToCartBtnClass, 'innerText': 'Add'};
@@ -25,10 +28,10 @@ var quantityButtons = (function() {
         return btn;
     }
 
-    /*
-     * Creates remove from cart button
-     * @param {Object} data data object passed to event handlers: item and its amount
-     * @returns {Element} remove cart button
+    /**
+     * Creates a remove from cart button.
+     * @param {Object} data object of the form {item: item, itemAmountElement: itemAmountElement}, passed to the click callback
+     * @returns {Element} the newly created button
      */
     function createRemoveBtn(data) {
         var btn, btnAtts = {'className': removeFromCartBtnClass, 'innerText': 'Remove'};
@@ -44,8 +47,9 @@ var quantityButtons = (function() {
     }
 
     /**
-     * Creates item amount input field and subscribes all its event handlers to the event bus.
-     * @param {Object} item item object corresponding to created buttons
+     * Creates an item amount input field.
+     * @param {Object} item an item object corresponding to this button
+     * @returns {Element} the newly created button
      */
     function createItemAmountElement(item) {
         var atts = {'className': itemAmountInputClass, 'value': 0},
@@ -69,9 +73,9 @@ var quantityButtons = (function() {
     }
 
     /**
-     * Appends quantity buttons to the specified element.
+     * Appends quantity buttons to the specified parent element.
      * @param {Element} parentElement a reference to a parent element to append buttons to
-     * @param {Object} item item object corresponding to created buttons
+     * @param {Object} item an item object corresponding to the created buttons
      */
     function appendQuantityBtns(parentElement, item) {
         var itemAmountElement, container, data;

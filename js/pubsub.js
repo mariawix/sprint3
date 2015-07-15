@@ -1,36 +1,31 @@
 /**
- * Loads event manager to the app.
+ * Event manager used for communication between modules.
  */
 (function PubSub(app) {
-    /* {
-     *     name1: cb1,
-     *     ...
-     *     nameN: cbN
-     * }
-     */
+
     var events = {};
 
     /**
      * Registers a new event.
-     * @param {String} name event name
-     * @param {Function} cb callback function of the event
+     * @param {String} name a unique event name
+     * @param {Function} cb callback to be invoked upon event firing
      */
     function subscribe(name, cb) {
         events[name] = cb;
     }
 
     /**
-     * Removes event with specified name from the event bus.
-     * @param {String} name event name
+     * Removes the event with the specified name from the event bus.
+     * @param {String} name the name of the event to be removed
      */
     function unsubscribe(name) {
         events[name] = undefined;
     }
 
     /**
-     * Runs the event with specified name.
-     * @param {String} name event name
-     * @param {Object} data data to be passed to event handler
+     * Invokes the callback of the the event with the specified name.
+     * @param {String} name the name of the event name
+     * @param {Object} data data to be passed to the event handler
      */
     function publish(name, data) {
         if (events[name]) {
