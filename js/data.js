@@ -735,14 +735,15 @@
             'quantity': {   get: function () { return quantity; } },
             'discount': {   get: function () { return discount; } }
         });
-        this.getItemClone = function() {
-            var i, itemClone = {}, propertyNames = Object.getOwnPropertyNames(this), propertyName;
-            for (i = 0; i < propertyNames.length; i++) {
-                propertyName = propertyNames[i];
-                itemClone[propertyName] = this[propertyName];
-            }
-            return itemClone;
-        };
+    }
+
+     function getItemClone(item) {
+        var i, itemClone = {}, propertyNames = Object.getOwnPropertyNames(item), propertyName;
+        for (i = 0; i < propertyNames.length; i++) {
+            propertyName = propertyNames[i];
+            itemClone[propertyName] = item[propertyName];
+        }
+        return itemClone;
     }
 
     function OnSaleItem(id, name, description, price) {
@@ -780,7 +781,7 @@
 
     function FreeItemCoupon(item) {
         this.getFreeItem = function() {
-            var itemClone = item.getItemClone();
+            var itemClone = getItemClone(item);
             itemClone.discount = 100;
             return itemClone;
         }
@@ -833,11 +834,14 @@
         }
     })();
 
+
     app.data = {
             itemsData: {
                 itemsData: compoundItems,
 
                 itemsNmb:  compoundItems.length,
+
+                getItemClone: getItemClone,
 
                 itemKeys: ['id', 'name', 'description', 'image', 'price', 'discount'],
 

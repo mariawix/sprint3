@@ -6,6 +6,7 @@
 
         coupons,
         couponTypes,
+        getItemClone,
 
         cartTableHeaders,
         couponDiscount = 0,
@@ -19,7 +20,7 @@
     function setItemAmount(data) {
         var item = data.item, amount = data.amount, itemClone;
         if (!addedItems[item.id]) {
-            itemClone = item.getItemClone();
+            itemClone = getItemClone(item);
             itemClone.amount = amount;
             addedItems[item.id] = itemClone;
         }
@@ -40,7 +41,7 @@
     function addItemToCart(data) {
         var item = data.item, itemClone;
         if (!addedItems[item.id]) {
-            itemClone = item.getItemClone();
+            itemClone = getItemClone(item);
             itemClone.amount = 0;
             addedItems[item.id] = itemClone;
         }
@@ -148,9 +149,10 @@
     /**
      * Initializes the cart.
      */
-    function init(itemKeys, couponsData) {
-        cartTableHeaders = itemKeys.concat('amount', 'discount', 'total');
+    function init(itemsData, couponsData) {
+        cartTableHeaders = itemsData.basicItemKeys.concat('amount', 'discount', 'total');
         coupons = couponsData.coupons;
+        getItemClone = itemsData.getItemClone;
         couponTypes = couponsData.couponTypes;
         initCartTable();
         addEventListeners();

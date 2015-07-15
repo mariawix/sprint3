@@ -9,7 +9,7 @@
     catalog.init(data.itemsData.itemsData, data.itemsData.itemKeys);
     pagination.init(data.itemsData.itemsNmb);
     catalog.loadRows(0, pagination.getPagingSize());
-    cart.init(data.itemsData.basicItemKeys, data.couponsData);
+    cart.init(data.itemsData, data.couponsData);
     handleSwitchThemeButton();
 
 
