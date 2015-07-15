@@ -17,8 +17,8 @@
      */
     function init(items, itemKeys) {
         var headers = itemKeys.concat('cart');
-        itemRowElements = helpers.createRowElements(items, headers, appendContent);
-        helpers.loadTableHead(tableElement, headers, appendSortBtn);
+        itemRowElements = view.createRowElements(items, headers, appendBodyCellContent);
+        view.loadTableHead(tableElement, headers, appendSortBtn);
         subscribeCatalogEventHandlers();
     }
     /**
@@ -39,7 +39,7 @@
      */
     function handlePagingSizeChange(pagingSize) {
         var firstIndex, newCurPage, topRow, topRowIndex;
-        topRow = helpers.getFirstBodyRow(tableElement);
+        topRow = view.getFirstBodyRow(tableElement);
         topRowIndex = parseInt(topRow.dataset.index, 10);
         newCurPage = Math.floor(topRowIndex / pagingSize) + 1;
         firstIndex = (newCurPage - 1) * pagingSize;
@@ -53,8 +53,8 @@
      */
     function sortItemRowElements(data) {
         itemRowElements.sort(function(item1, item2) {
-            var el1val = helpers.getElementValueByClassName(item1, data.key),
-                el2val = helpers.getElementValueByClassName(item2, data.key),
+            var el1val = view.getElementValueByClassName(item1, data.key),
+                el2val = view.getElementValueByClassName(item2, data.key),
                 res;
             res = (el1val > el2val) ? 1 : ((el1val < el2val) ? -1 : 0);
             return (data.asc) ? res : -res;
@@ -71,7 +71,7 @@
      * @param {Number} endIndex index at which to end loading
      */
     function loadItems(firstIndex, endIndex) {
-        helpers.loadRows(tableElement, itemRowElements, firstIndex, endIndex);
+        view.loadRows(tableElement, itemRowElements, firstIndex, endIndex);
     }
     /**
      * Appends a sort button to a given element.
@@ -85,23 +85,21 @@
             eventName = (asc) ? eventBus.eventNames.sortAscBtnClicked : eventBus.eventNames.sortDescBtnClicked;
             btnAtts = (asc) ? {'innerHTML': '&uarr;', 'className': sortAscBtnClass}
                             : {'innerHTML': '&darr;', 'className': sortDescBtnClass};
-            sortBtn = helpers.createCustomElement('span', btnAtts);
-            sortBtn.onclick = function () {
-                eventBus.publish(eventName, {key: key, asc: asc});
-            };
+            sortBtn = view.createCustomElement('span', btnAtts);
+            addSortBtnHandler(sortBtn, eventName, key, asc);
             parentElement.appendChild(sortBtn);
         }
     }
     /**
-     * Appends a content to the given cell.
+     * Given a cell and its class appends appropriate content to that cell.
      * @param {String} cellClass class name of the cell to append content to
      * @param {Object} item an item corresponding to this cell
      * @param {Element} cell an element corresponding to that item
      */
-    function appendContent(cellClass, item, cell) {
+    function appendBodyCellContent(cellClass, item, cell) {
         switch (cellClass) {
             case 'image':
-                helpers.appendChild(cell, 'img', {'src': item[cellClass], 'alt': 'image'});
+                view.appendChild(cell, 'img', {'src': item[cellClass], 'alt': 'image'});
                 break;
             case 'cart':
                 quantityButtons.appendQuantityBtns(cell, item);
@@ -113,6 +111,11 @@
     /**************************************************************************************************
      *                                         Catalogue UI Manipulations
      **************************************************************************************************/
+    function addSortBtnHandler(sortBtn, eventName, key, asc) {
+        sortBtn.onclick = function () {
+            eventBus.publish(eventName, {key: key, asc: asc});
+        };
+    }
     /**
      * Subscribes catalogue event handlers to the event bus.
      */

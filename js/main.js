@@ -4,14 +4,12 @@
     var data = app.data,
         catalog = app.catalog,
         pagination = app.pagination,
-        cart = app.cart,
-        eventBus = app.eventBus;
+        cart = app.cart;
 
-    quantityButtons.setEventManager(eventBus);
-    catalog.init(data.getItems(), data.Item.getItemKeys());
-    pagination.init(data.getItemsNmb());
+    catalog.init(data.itemsData.itemsData, data.itemsData.itemKeys);
+    pagination.init(data.itemsData.itemsNmb);
     catalog.loadRows(0, pagination.getPagingSize());
-    cart.init(data.Item.getBasicItemKeys(), data.coupons);
+    cart.init(data.itemsData.basicItemKeys, data.couponsData);
     handleSwitchThemeButton();
 
 

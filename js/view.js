@@ -1,8 +1,11 @@
 /**
  * DOM help functions.
  */
-var helpers = (function() {
-    var tableHeadCellClass = 'th',
+
+
+var view = (function() {
+    var hiddenElementClass = 'visuallyhidden',
+        tableHeadCellClass = 'th',
         tableBodyCellClass = 'td',
         tableHeadClass = 'thead',
         tableBodyClass = 'tbody',
@@ -16,7 +19,7 @@ var helpers = (function() {
      */
     function appendChild(parentElement, tagName, attributes) {
         var attributeName, childElement;
-        childElement = helpers.createCustomElement(tagName, attributes);
+        childElement = createCustomElement(tagName, attributes);
         parentElement.appendChild(childElement);
         return childElement;
     }
@@ -158,12 +161,12 @@ var helpers = (function() {
     }
 
     /**
-     * Exposes the given element.
-     * @param element an element
+     * Exposes hidden element.
+     * @param element a hidden element
      */
     function exposeElement(element) {
-        if (element.classList.contains('visuallyhidden')) {
-            element.classList.remove('visuallyhidden');
+        if (element.classList.contains(hiddenElementClass)) {
+            element.classList.remove(hiddenElementClass);
         }
     }
 
@@ -172,8 +175,8 @@ var helpers = (function() {
      * @param element an element
      */
     function hideElement(element) {
-        if (!element.classList.contains('visuallyhidden')) {
-            element.classList.add('visuallyhidden');
+        if (!element.classList.contains(hiddenElementClass)) {
+            element.classList.add(hiddenElementClass);
         }
     }
 

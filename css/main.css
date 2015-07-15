@@ -92,8 +92,8 @@ button {
 .catalog .tr img {
     position: absolute;
     margin: 0 auto;
-    width: 40%;
-    left: 30%;
+    width: 30%;
+    left: 35%;
     top: 0.7rem;
 }
 .description {

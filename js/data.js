@@ -2,7 +2,7 @@
  * Shopping cart data.
  */
 (function(app) {
-    var couponsNmb = 10,
+    var couponsNmb = 8,
         items = [
             {   "id": 0,
                 "name": "Exoplode",
@@ -745,15 +745,6 @@
         };
     }
 
-
-    Item.getItemKeys = function () {
-        return ['id', 'name', 'description', 'image', 'price', 'discount'];
-    };
-
-    Item.getBasicItemKeys = function () {
-        return ['id', 'name', 'price'];
-    };
-
     function OnSaleItem(id, name, description, price) {
         Item.apply(this, [id, name, description, price, "../img/sale-item.ico", 'sale', getRandomQuantity(), getRandomDiscount()]);
     }
@@ -780,14 +771,10 @@
     })();
 
 
-    function Coupon(code, type) {
+    function Coupon(code) {
         var code = code;
-        var type = type;
         this.getCode = function() {
             return code;
-        };
-        this.getType = function() {
-            return type;
         };
     }
 
@@ -828,33 +815,39 @@
             nmb = Math.floor(Math.random() * 2);
             switch (nmb) {
                 case 0:
-                    DiscountCoupon.prototype = new Coupon(code, 'discount');
+                    DiscountCoupon.prototype = new Coupon(code);
                     DiscountCoupon.prototype.constructor = DiscountCoupon;
                     coupon = new DiscountCoupon(getRandomDiscount());
                     break;
                 case 1:
-                    FreeItemCoupon.prototype = new Coupon(code, 'free-item');
+                    FreeItemCoupon.prototype = new Coupon(code);
                     FreeItemCoupon.prototype.constructor = FreeItemCoupon;
                     coupon = new FreeItemCoupon(compoundItems[Math.floor(Math.random() * items.length)]);
                     break;
             }
             if (coupon instanceof DiscountCoupon)
-                console.log('coupon ' + nmb + ' ' + code + ' discount ' + coupon.getDiscountValue());
+                console.log('coupon ' + code + ' discount ' + coupon.getDiscountValue());
             else
-                console.log('coupon ' + nmb + ' ' + code + ' freeItemID ' + coupon.getFreeItem().id);
+                console.log('coupon ' + code + ' freeItemID ' + coupon.getFreeItem().id);
             coupons.push(coupon);
         }
     })();
 
     app.data = {
-        getItems: function () {
-            return compoundItems;
-        },
-        getItemsNmb: function () {
-            return compoundItems.length;
-        },
-        coupons: coupons,
-        Item: Item
+            itemsData: {
+                itemsData: compoundItems,
 
+                itemsNmb:  compoundItems.length,
+
+                itemKeys: ['id', 'name', 'description', 'image', 'price', 'discount'],
+
+                basicItemKeys: ['id', 'name', 'price']
+            },
+
+            couponsData: {
+                coupons:  coupons,
+
+                couponTypes:  {'DiscountCoupon': DiscountCoupon, 'FreeItemCoupon': FreeItemCoupon}
+            }
     };
 }(app));

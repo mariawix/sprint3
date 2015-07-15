@@ -33,7 +33,9 @@
      * @param {Object} data data to be passed to event handler
      */
     function publish(name, data) {
-        events[name](data);
+        if (events[name]) {
+            events[name](data);
+        }
     }
 
     app.eventBus = {

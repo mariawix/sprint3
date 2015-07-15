@@ -1,0 +1,20 @@
+<div class="cart-table">
+    <div class="thead">
+        <div class="th">name</div>
+        <div class="th">price</div>
+        <div class="th">amount</div>
+        <div class="th">discount</div>
+        <div class="th">total</div>
+    </div>
+    <div class="tbody">
+    {{#each items}}
+        <div class="tr">
+            <div class="td">{{name}}</div>
+            <div class="td">{{price}}</div>
+            <div class="td">{{amount}}</div>
+            <div class="td">{{discount}}</div>
+            <div class="td">{{total}}</div>
+        </div>
+    {{/each}}
+    </div>
+</div>

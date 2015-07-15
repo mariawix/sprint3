@@ -13,6 +13,52 @@
         pagingSizeElement = document.querySelector('.paging-size');
 
     /**
+     * Initializes pagination module.
+     */
+    function init(itemsNmb) {
+        subscribePaginationEventHandlers();
+        loadPaginationBar(1, itemsNmb);
+        handlePagingSizeElement(itemsNmb);
+    }
+
+    /**
+     * Loads pagination bar.
+     * @param {Number} curPage index of displayed page
+     * @param {Number} itemsNmb total number of items
+     */
+    function loadPaginationBar(curPage, itemsNmb) {
+        var pageNmb, btn, btnNmb,
+            pagingFragment = document.createDocumentFragment(),
+            pagingSizeValue = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
+        paginationListElement.innerHTML = "";
+        for (btnNmb = 0; btnNmb < paginationListElement.childNodes.length; btnNmb++) {
+            paginationListElement.childNodes[btnNmb].onclick = undefined;
+        }
+        for (pageNmb = 1; (pageNmb - 1) * pagingSizeValue < itemsNmb; pageNmb++) {
+            btn = createPageBtnElement(pageNmb === curPage, pageNmb, pagingSizeValue);
+            pagingFragment.appendChild(btn);
+            pageBtnHandler(btn);
+        }
+        paginationListElement.appendChild(pagingFragment);
+    }
+
+
+    /**************************************************************************************************
+     *                                          Pagination UI Manipulations
+     **************************************************************************************************/
+
+    function subscribePaginationEventHandlers() {
+        eventBus.subscribe(eventBus.eventNames.curPageChanged, function (curPageNmb) {
+            view.getElementByClassName(paginationListElement, curPageBtnClass).classList.remove(curPageBtnClass);
+            view.getElementByClassName(paginationListElement, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
+        });
+
+        eventBus.subscribe(eventBus.eventNames.reloadPagination, function() {
+            eventBus.publish(eventBus.eventNames.reloadItems, getPagingSize());
+        });
+    }
+
+    /**
      * Handles paging size change event.
      * @param {Number} itemsNmb total number of items
      */
@@ -30,53 +76,13 @@
     function pageBtnHandler(pageBtnElement) {
         pageBtnElement.onclick = function () {
             var data = JSON.parse(pageBtnElement.dataset.paging), clickedPage, clickedPageNmb;
-            clickedPage = helpers.getElementByClassName(pageBtnElement, pageLinkClass);
+            clickedPage = view.getElementByClassName(pageBtnElement, pageLinkClass);
             clickedPageNmb = parseInt(clickedPage.innerText, 10);
             eventBus.publish(eventBus.eventNames.pageBtnClicked, {start: data.start, end: data.end});
             eventBus.publish(eventBus.eventNames.curPageChanged, clickedPageNmb);
         }
     }
 
-
-    /**
-     * Loads pagination bar.
-     * @param {Number} curPage index of displayed page
-     * @param {Number} itemsNmb total number of items
-     */
-    function loadPaginationBar(curPage, itemsNmb) {
-        var pageNmb, btn,
-            pagingFragment = document.createDocumentFragment(),
-            pagingSizeValue = (pagingSizeElement.value < itemsNmb) ? pagingSizeElement.value : itemsNmb;
-        paginationListElement.innerHTML = "";
-        // TODO: unsubscribe handlers
-        for (pageNmb = 1; (pageNmb - 1) * pagingSizeValue < itemsNmb; pageNmb++) {
-            btn = createPageBtnElement(pageNmb === curPage, pageNmb, pagingSizeValue);
-            pagingFragment.appendChild(btn);
-            pageBtnHandler(btn);
-        }
-        paginationListElement.appendChild(pagingFragment);
-    }
-
-
-    /**************************************************************************************************
-     *                                          Pagination UI Manipulations
-     **************************************************************************************************/
-    /**
-     * Initializes pagination module.
-     */
-    function init(itemsNmb) {
-        eventBus.subscribe(eventBus.eventNames.curPageChanged, function (curPageNmb) {
-            helpers.getElementByClassName(paginationListElement, curPageBtnClass).classList.remove(curPageBtnClass);
-            helpers.getElementByClassName(paginationListElement, pageBtnClass + ':nth-child(' + curPageNmb + ')').classList.add(curPageBtnClass);
-        });
-
-        eventBus.subscribe(eventBus.eventNames.reloadPagination, function() {
-            eventBus.publish(eventBus.eventNames.reloadItems, getPagingSize());
-        });
-
-        loadPaginationBar(1, itemsNmb);
-        handlePagingSizeElement(itemsNmb);
-    }
     /**************************************************************************************************
      *                                          Pagination DOM Helpers
      **************************************************************************************************/
@@ -86,8 +92,8 @@
      */
     function getCurPageNmb() {
         var curPageBtn, curPageLink, curPageNmb;
-        curPageBtn = helpers.getElementByClassName(paginationListElement, curPageBtnClass);
-        curPageLink = helpers.getElementByClassName(curPageBtn, pageLinkClass);
+        curPageBtn = view.getElementByClassName(paginationListElement, curPageBtnClass);
+        curPageLink = view.getElementByClassName(curPageBtn, pageLinkClass);
         curPageNmb = parseInt(curPageLink.innerText, 10);
         return isNaN(curPageNmb) ? 1 : curPageNmb;
     }
@@ -118,8 +124,8 @@
             'className': className,
             'dataset': { 'paging': '{"start": ' + firstItemIndex + ', "end": ' + endItemIndex + '}' }
         };
-        btn = helpers.createCustomElement('li', pageItemAtts);
-        helpers.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageIndex});
+        btn = view.createCustomElement('li', pageItemAtts);
+        view.appendChild(btn, 'span', {'className': pageLinkClass, 'innerText': pageIndex});
         return btn;
     }
     app.pagination = {

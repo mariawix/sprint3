@@ -4,10 +4,12 @@
 (function(app) {
     var eventBus = app.eventBus,
 
+        coupons,
+        couponTypes,
+
         cartTableHeaders,
         couponDiscount = 0,
         addedCoupons = [],
-        coupons,
         addedItems = {};
 
     /**
@@ -117,30 +119,10 @@
     }
 
     /**
-     * Resets the cart when reset button clicked.
-     * @param {Object} e event
-     */
-    function resetCartBtnHandler(e) {
-        e.preventDefault();
-        resetCart();
-    }
-    /**
-     * Shows the cart to user.
-     * @param {Object} e event
-     */
-    function viewCartBtnHandler(e) {
-        e.preventDefault();
-        exposeCart();
-        refreshCart();
-    }
-
-    /**
      * Validates coupon submitted by user and updates the cart accordingly.
-     * @param e event
      */
-    function couponSubmitBtnHandler(e) {
+    function addCoupon() {
         var couponCode, i;
-        e.preventDefault();
         couponCode = popCouponCode();
         if (addedCoupons.indexOf(couponCode) > -1) {
             return;
@@ -151,12 +133,14 @@
                 break;
             }
         }
-        if (coupons[i].getType() === 'free-item') {
-            addItemToCart({item: coupons[i].getFreeItem()});
-        }
-        else {
-            couponDiscount += coupons[i].getDiscountValue();
-            couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
+        if (coupons[i]) {
+            if (coupons[i] instanceof couponTypes.FreeItemCoupon) {
+                addItemToCart({item: coupons[i].getFreeItem()});
+            }
+            else {
+                couponDiscount += coupons[i].getDiscountValue();
+                couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
+            }
         }
         refreshCart();
     }
@@ -164,9 +148,10 @@
     /**
      * Initializes the cart.
      */
-    function init(itemKeys, couponsArray) {
+    function init(itemKeys, couponsData) {
         cartTableHeaders = itemKeys.concat('amount', 'discount', 'total');
-        coupons = couponsArray;
+        coupons = couponsData.coupons;
+        couponTypes = couponsData.couponTypes;
         initCartTable();
         addEventListeners();
     }
@@ -191,9 +176,19 @@
             e.preventDefault();
             hideCart();
         });
-        resetCartBtn.addEventListener('click', resetCartBtnHandler);
-        viewCartBtn.addEventListener('click', viewCartBtnHandler);
-        couponSubmitBtn.addEventListener('click', couponSubmitBtnHandler);
+        resetCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetCart();
+        });
+        viewCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            exposeCart();
+            refreshCart();
+        });
+        couponSubmitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addCoupon();
+        });
 
         eventBus.subscribe(eventBus.eventNames.addItemToCart, addItemToCart);
         eventBus.subscribe(eventBus.eventNames.removeItemFromCart, removeItemFromCart);
@@ -213,7 +208,7 @@
      * Initializes the cart table.
      */
     function initCartTable() {
-        helpers.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
+        view.loadTableHead(tableElement, cartTableHeaders, appendSortBtn);
     }
 
     /**
@@ -221,8 +216,8 @@
      * @param {Array} items items added to the cart so far.
      */
     function reloadCartTable(items) {
-        var rows = helpers.createRowElements(items, cartTableHeaders, appendContent);
-        helpers.loadRows(tableElement, rows, 0, items.length);
+        var rows = view.createRowElements(items, cartTableHeaders, appendContent);
+        view.loadRows(tableElement, rows, 0, items.length);
     }
 
     /**
@@ -248,20 +243,20 @@
      * Hides the cart.
      */
     function hideCart() {
-        helpers.hideElement(hideCartBtn);
-        helpers.hideElement(cartDetails);
-        helpers.hideElement(couponInputContainer);
-        helpers.exposeElement(viewCartBtn);
+        view.hideElement(hideCartBtn);
+        view.hideElement(cartDetails);
+        view.hideElement(couponInputContainer);
+        view.exposeElement(viewCartBtn);
     }
 
     /**
      * Shows the cart.
      */
     function exposeCart() {
-        helpers.exposeElement(cartDetails);
-        helpers.exposeElement(hideCartBtn);
-        helpers.exposeElement(couponInputContainer);
-        helpers.hideElement(viewCartBtn);
+        view.exposeElement(cartDetails);
+        view.exposeElement(hideCartBtn);
+        view.exposeElement(couponInputContainer);
+        view.hideElement(viewCartBtn);
     }
 
     function appendSortBtn(parentElement, key, asc) {
