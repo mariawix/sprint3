@@ -849,7 +849,8 @@
      * @param {Object} item free item
      * @constructor
      */
-    function FreeItemCoupon(item) {
+    function FreeItemCoupon(item, code) {
+        Coupon.call(this, code);
         var itemClone = getItemClone(item);
         itemClone.discount = 100;
         this.getFreeItem = function () {
@@ -861,7 +862,8 @@
      * @param {Number} discountValue discount (percent) added to each item
      * @constructor
      */
-    function DiscountCoupon(discountValue) {
+    function DiscountCoupon(discountValue, code) {
+        Coupon.call(this, code);
         var discountValue = discountValue;
         this.getDiscountValue = function () {
             return discountValue;
@@ -886,25 +888,28 @@
             return code;
         }
 
+        DiscountCoupon.prototype = Object.create(Coupon);
+        DiscountCoupon.prototype.constructor = DiscountCoupon;
+
+        FreeItemCoupon.prototype = Object.create(Coupon);
+        FreeItemCoupon.prototype.constructor = FreeItemCoupon;
         for (i = 0; i < couponsNmb; i++) {
             code = getRandomCode(5, 10);
             nmb = Math.floor(Math.random() * 2);
             switch (nmb) {
                 case 0:
-                    DiscountCoupon.prototype = new Coupon(code);
-                    DiscountCoupon.prototype.constructor = DiscountCoupon;
-                    coupon = new DiscountCoupon(getRandomDiscount());
+                    coupon = new DiscountCoupon(getRandomDiscount(), code);
                     break;
                 case 1:
-                    FreeItemCoupon.prototype = new Coupon(code);
-                    FreeItemCoupon.prototype.constructor = FreeItemCoupon;
-                    coupon = new FreeItemCoupon(compoundItems[Math.floor(Math.random() * items.length)]);
+                    coupon = new FreeItemCoupon(compoundItems[Math.floor(Math.random() * items.length)], code);
                     break;
             }
-            if (coupon instanceof DiscountCoupon)
+            if (coupon instanceof FreeItemCoupon)
+                console.log('coupon ' + code + ' freeItemID ' + coupon.getFreeItem().id);
+            else if (coupon instanceof DiscountCoupon)
                 console.log('coupon ' + code + ' discount ' + coupon.getDiscountValue());
             else
-                console.log('coupon ' + code + ' freeItemID ' + coupon.getFreeItem().id);
+                console.log('Other');
             coupons.push(coupon);
         }
     })();

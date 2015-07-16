@@ -143,15 +143,15 @@
         if (addedCoupons.indexOf(couponCode) > -1) {
             return;
         }
-        addedCoupons.push(couponCode);
         coupon = getCouponByID(couponCode);
         if (coupon) {
-            if (coupon instanceof couponTypes.FreeItemCoupon) {
-                addItemToCart({item: coupon.getFreeItem()});
-            }
-            else {
+            addedCoupons.push(couponCode);
+            if (coupon instanceof couponTypes.DiscountCoupon) {
                 couponDiscount += coupon.getDiscountValue();
                 couponDiscount = (couponDiscount > 100) ? 100 : couponDiscount;
+            }
+            else {
+                addItemToCart({item: coupon.getFreeItem()});
             }
         }
         refreshCart();
