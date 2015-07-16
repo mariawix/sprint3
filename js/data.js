@@ -718,56 +718,19 @@
      * @constructor
      */
     function Item(id, name, description, price, img, type, quantity, discount) {
-        var id = id;
-        var name = name;
-        var description = description;
-        var price = price;
-        var image = img || "../img/base-item.ico";
-        var type = type || 'base';
-        var quantity = (quantity === 0) ? quantity : (quantity || getRandomQuantity());
-        var discount = discount || 0;
-        Object.defineProperties(this, {
-            'id': {
-                get: function () {
-                    return id;
-                }
-            },
-            'name': {
-                get: function () {
-                    return name;
-                }
-            },
-            'description': {
-                get: function () {
-                    return description;
-                }
-            },
-            'image': {
-                get: function () {
-                    return image;
-                }
-            },
-            'price': {
-                get: function () {
-                    return price;
-                }
-            },
-            'type': {
-                get: function () {
-                    return type;
-                }
-            },
-            'quantity': {
-                get: function () {
-                    return quantity;
-                }
-            },
-            'discount': {
-                get: function () {
-                    return discount;
-                }
-            }
-        });
+        var keys = ['id', 'name', 'description', 'image', 'price', 'type', 'quantity', 'discount'], properties = {}, i;
+        for (i = 0; i < keys.length; i++) {
+            properties[keys[i]] = {configurable: false, enumerable: true, writable: false };
+        }
+        properties.id.value = id;
+        properties.name.value = name;
+        properties.description.value = description;
+        properties.price.value = price;
+        properties.image.value = img || "../img/base-item.ico";
+        properties.type.value = type || 'base';
+        properties.quantity.value = (quantity === 0) ? quantity : (quantity || getRandomQuantity());
+        properties.discount.value = discount || 0;
+        Object.defineProperties(this, properties);
     }
 
     /**
