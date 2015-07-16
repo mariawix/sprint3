@@ -106,6 +106,14 @@ button {
 .description.th {
     text-align: center;
 }
+.old-price {
+    font-weight: normal;
+    text-decoration: line-through;
+    display: block;
+}
+.new-price {
+    font-weight: bold;
+}
 .sort-asc-btn,
 .sort-desc-btn {
     display: inline-block;
@@ -238,31 +246,31 @@ button {
     border-color: #ddd;
 }
 /* Classic Theme */
-.classic-theme input,
-.classic-theme button,
-.classic-theme .item-amount .add,
-.classic-theme .item-amount .remove,
-.classic-theme .pagination-list .page-link,
-.classic-theme .switch-theme-btn {
+.default-theme input,
+.default-theme button,
+.default-theme .item-amount .add,
+.default-theme .item-amount .remove,
+.default-theme .pagination-list .page-link,
+.default-theme .switch-theme-btn {
     color: #337ab7;
 }
-.classic-theme .thead,
-.classic-theme .item-amount .amount,
-.classic-theme .switch-theme-btn {
+.default-theme .thead,
+.default-theme .item-amount .amount,
+.default-theme .switch-theme-btn {
     background-color: #CAE3FA;
 }
 /* Bright Theme */
-.bright-theme input,
-.bright-theme button,
-.bright-theme .item-amount .add,
-.bright-theme .item-amount .remove,
-.bright-theme .pagination-list .page-link,
-.bright-theme .switch-theme-btn {
+.green-theme input,
+.green-theme button,
+.green-theme .item-amount .add,
+.green-theme .item-amount .remove,
+.green-theme .pagination-list .page-link,
+.green-theme .switch-theme-btn {
     color: #006400;
 }
-.bright-theme .thead,
-.bright-theme .item-amount .amount,
-.bright-theme .switch-theme-btn {
+.green-theme .thead,
+.green-theme .item-amount .amount,
+.green-theme .switch-theme-btn {
     background-color: #8FBC8F;
 }
 

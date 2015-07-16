@@ -107,6 +107,12 @@
             case 'cart':
                 quantityButtons.appendQuantityBtns(cell, item);
                 break;
+            case 'price':
+                if (item.discount > 0) {
+                    view.appendChild(cell, 'span', {'innerText': item.price.toFixed(2), 'className': 'old-price'});
+                }
+                view.appendChild(cell, 'span', {'innerText': ((item.price * (100 - item.discount)) / 100).toFixed(2), 'className': 'new-price'});
+                break;
             default :
                 cell.innerText = item[cellClass];
         }

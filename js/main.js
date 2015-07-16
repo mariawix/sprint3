@@ -22,13 +22,13 @@
             body = document.querySelector('body');
         switchThemeBtn.onclick = function(e) {
             e.preventDefault();
-            if (body.classList.contains('classic-theme')) {
-                body.classList.remove('classic-theme');
-                body.classList.add('bright-theme');
+            if (body.classList.contains('default-theme')) {
+                body.classList.remove('default-theme');
+                body.classList.add('green-theme');
             }
             else {
-                body.classList.add('classic-theme');
-                body.classList.remove('bright-theme');
+                body.classList.add('default-theme');
+                body.classList.remove('green-theme');
             }
         }
     }

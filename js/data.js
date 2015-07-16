@@ -920,7 +920,7 @@
             itemsData: compoundItems,
             itemsNmb: compoundItems.length,
             getItemClone: getItemClone,
-            itemKeys: ['id', 'name', 'description', 'image', 'price', 'discount'],
+            itemKeys: ['id', 'name', 'description', 'image', 'price'],
             basicItemKeys: ['id', 'name', 'price']
         },
 

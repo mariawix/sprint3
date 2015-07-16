@@ -32,8 +32,6 @@
         refreshCart();
     }
 
-
-
     /**
      * Adds a new item into the cart.
      * @param {Object} data object {item: item, amount: amount}.
@@ -51,7 +49,7 @@
 
     /**
      * Removes an item from the cart.
-     * @param {Object} data object {item: item, amount: amount}.
+     * @param {Object} data object {item: item, amount: amount}, where item is the item object to be removed
      */
     function removeItemFromCart(data) {
         var item = data.item;
